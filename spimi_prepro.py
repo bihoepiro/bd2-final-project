@@ -14,10 +14,28 @@ nltk.download('punkt')
 from nltk.stem.snowball import SnowballStemmer
 stemmer = SnowballStemmer('english')
 
+def determinar_bloque(i, limite):
+  for j in range(limite + 1):
+    # seleccionar bloque
+    if i <= j*limite and i > (j-1)*limite:
+      return j
+
 csv_file = '/content/data.csv'
 df = pd.read_csv(csv_file)
 #DICCIONARIO DOCS
 diccionario_docs = {}
+
+
+
+def obtener_tf(index, word):
+  frecuencia = 0
+  words = diccionario_docs[index]
+  for w in words:
+    if w == word:
+      frecuencia += 1
+  return frecuencia
+
+
 # Crear una carpeta para almacenar los archivos de texto
 output_folder = '/content/text_files'
 os.makedirs(output_folder, exist_ok=True)
@@ -25,8 +43,8 @@ os.makedirs(output_folder, exist_ok=True)
 stoplist = ["a", "an", "and", "are", "as", "at", "be", "but", "by",
             "for", "if", "in", "into", "is", "it", "no", "not", "of",
             "on", "or", "such", "that", "the", "their", "then", "there",
-            "these", "they", "this", "to", "was", "will", "with", "&", ",", "."]
-
+            "these", "they", "this", "to", "was", "will", "with"]
+diccionario_palabras = {}
 for index, row in df.iterrows():
     # Concatenar todos los atributos en una sola cadena
     row_text = ' '.join(row.astype(str).tolist())
@@ -42,17 +60,32 @@ for index, row in df.iterrows():
     for word in words:
        if  word not in stoplist:
         words_.append(word)
+        #para garantizar el diccionario correcto
+        #diccionario_palabras.setdefault(word, {})[index+1] = obtener_tf(index +1, word)
     words_ = [stemmer.stem(words_[i]) for i in range(len(words_))]
     #como doc id le asignamos su index + 1
-    diccionario_docs[index] = words_
-
-
-
+    diccionario_docs[index+1] = words_
+    for word in words_:
+      diccionario_palabras.setdefault(word, {})[index+1] = obtener_tf(index +1, word)
 
 
 
 print(f'Archivos de texto creados en la carpeta: {output_folder}')
 
+print(diccionario_palabras)
+
 print(diccionario_docs)
 
-# TOKENIZAR (DIVIDIR EL TEXO EN PALABRAS)
+cant_bloques = 3
+cant_docs = 30
+bloques = {}
+limite = cant_docs/cant_bloques
+
+
+for i in range(cant_bloques):
+  bloques[i] = {}
+
+bloque_temp = 1
+for i in range(cant_docs):
+  #obtener datos necesarios es decir TF de cada word en cada doc, bueno en los necesarios por bloque
+  bloque_temp = determinar_bloque(i, limite)
