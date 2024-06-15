@@ -20,7 +20,7 @@ def determinar_bloque(i, limite):
     if i <= j*limite and i > (j-1)*limite:
       return j
 
-csv_file = '/content/data.csv'
+csv_file = '/data.csv'
 df = pd.read_csv(csv_file)
 #DICCIONARIO DOCS
 diccionario_docs = {}
@@ -43,7 +43,7 @@ os.makedirs(output_folder, exist_ok=True)
 stoplist = ["a", "an", "and", "are", "as", "at", "be", "but", "by",
             "for", "if", "in", "into", "is", "it", "no", "not", "of",
             "on", "or", "such", "that", "the", "their", "then", "there",
-            "these", "they", "this", "to", "was", "will", "with"]
+            "these", "they", "this", "to", "was", "will", "with", "...", "/", "-", "&", ")", "(", ".", "..", "?", "'s"]
 diccionario_palabras = {}
 for index, row in df.iterrows():
     # Concatenar todos los atributos en una sola cadena
@@ -79,7 +79,7 @@ print(diccionario_docs)
 cant_bloques = 3
 cant_docs = 30
 bloques = {}
-limite = cant_docs/cant_bloques
+limite = int(cant_docs/cant_bloques)
 
 
 for i in range(cant_bloques):
@@ -88,4 +88,88 @@ for i in range(cant_bloques):
 bloque_temp = 1
 for i in range(cant_docs):
   #obtener datos necesarios es decir TF de cada word en cada doc, bueno en los necesarios por bloque
-  bloque_temp = determinar_bloque(i, limite)
+  bloque_temp = determinar_bloque(i+1, limite)
+  for word in diccionario_palabras:
+    docs_presentes = diccionario_palabras[word]
+    docs_limite = []
+    for index in docs_presentes:
+      if determinar_bloque(index, limite) == bloque_temp:
+        docs_limite.append(index)
+    if len(docs_limite) > 0: #solo si esas palabras estan presentes en los docs pertenecientes al bloque
+      bloques.setdefault(bloque_temp, {})[word] = docs_limite
+
+"""**Notar que en el bloque 1, la palabra boy aparece en el 2,4,6**"""
+
+import pprint
+pprint.pprint(bloques[1])
+
+"""**Notar que boy aparece en el bloque 2 con página 14**"""
+
+import pprint
+pprint.pprint(bloques[2])
+
+"""**Okay ahora merge Blocks para no tener los mismos terminos (words) en todos los bloques que antes eran locales.**"""
+
+merged_blocks = {}
+for i in range(cant_bloques):
+  for word, docs in bloques[i].items():
+    if word in merged_blocks:
+      merged_blocks[word].extend(docs)
+    else:
+      merged_blocks[word] = docs
+
+pages = {}
+page_num = 0
+words_in_page = 0
+total_words = len(merged_blocks)
+limite = int(total_words/ cant_bloques)
+sorted_words = sorted(merged_blocks.keys())
+
+total_words = len(sorted_words)
+limite = int(total_words / cant_bloques)
+
+pages = {}
+page_num = 0
+words_in_page = 0
+
+for word in sorted_words:
+    if page_num not in pages:
+        pages[page_num] = {} #su page se inicia
+
+    pages[page_num][word] = merged_blocks[word] # añado el word a la page
+    words_in_page += 1 #voy aumentando el numero de palabras
+
+    if words_in_page >= limite: #compruebo si ya pase el limite
+        page_num += 1
+        words_in_page = 0
+
+pprint.pprint(pages)
+
+
+
+"""**Búsqueda por similitud de coseno TOP K**
+
+"""
+
+#Forma de la query, palabras naturales, tipo oraciones
+def simcosK(query, K ):
+  #preprocesamiento de la query.
+  query = nltk.word_tokenize(query.lower())
+  final_query = []
+  for word in query:
+    if word not in stoplist:
+      final_query.append(word)
+  final_query = [stemmer.stem(final_query[i]) for i in range(len(final_query))]
+
+  #similitud por coseno
+
+
+
+
+
+
+  #probamos la correcta reduccion de la query
+  return final_query
+
+simcosK("wondering about the lovers and the amazing things of life")
+
