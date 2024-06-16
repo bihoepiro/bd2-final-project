@@ -78,7 +78,7 @@ def merge_blocks(block_count):
         for term, doc_ids in block.items():
             merged_index[term].extend(doc_ids)
 
-    # Remove duplicate doc_ids and sort them
+    
     for term in merged_index:
         merged_index[term] = sorted(set(merged_index[term]))
 
@@ -135,7 +135,6 @@ df = obtener_document_frequency(documents)
 N = len(documents)
 idf = obtener_idf(df, N)
 
-# Procesar bloques con SPIMI
 spimi_invert_block(documents, block_size=1000)
 
 # Merge de los bloques
