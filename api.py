@@ -33,13 +33,13 @@ def search():
 
             postgreSQL_select = """
                 SELECT track_name, lyrics, duration_ms, ts_rank(indexed, query) AS rank
-                FROM spotify_songs, plainto_tsquery('english', %s) query
+                FROM spotify_songs, plainto_tsquery('multilingual', %s) query
                 ORDER BY rank DESC
                 LIMIT %s;
             """
 
             cursor.execute(postgreSQL_select, (query, top_k))
-            results = [{'track_name': row[0], 'lyrics': row[1], 'duration_ms': row[2]} for row in cursor.fetchall()]
+            results = [{'track_name': row[0], 'lyrics': row[1], 'duration_ms': row[2], 'rank': row[3]} for row in cursor.fetchall()]
 
             cursor.close()
             conn.close()
