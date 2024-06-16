@@ -142,13 +142,10 @@ spimi_invert_block(documents, block_size=1000)
 block_count = len([name for name in os.listdir() if name.startswith('block_') and name.endswith('.json')])
 merged_index = merge_blocks(block_count)
 
-# Procesamiento de consultas
-query = "MORDIDITA"
-k=6
 
-results = query_processing(query,merged_index, idf, k)
+def insert_queryTOPK(query, k):
+  results = query_processing(query,merged_index, idf, k)
+  for  score, doc_id in results:
+    return doc_id, score
+      #print(f"Documento ID: {doc_id}, Similitud: {score}")
 
-
-print("Resultados de la consulta:")
-for  score, doc_id in results:
-    print(f"Documento ID: {doc_id}, Similitud: {score}")
