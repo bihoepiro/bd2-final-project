@@ -1,48 +1,57 @@
 from flask import Flask, request, jsonify
 import psycopg2
-from os import environ, path
-from dotenv import load_dotenv
+from os import environ
 
 app = Flask(__name__)
-
-# Cargar variables de entorno desde .env
-basedir = path.abspath(path.dirname(__file__))
-load_dotenv(path.join(basedir, '.env'))
 
 # Función para conectar con PostgreSQL
 def connect_to_postgres():
     return psycopg2.connect(
-        host=environ.get('POSTGRES_HOST'),
-        database=environ.get('POSTGRES_DATABASE_NAME'),
-        port='5432',
-        user='postgres',
-        password=environ.get('POSTGRES_CONN_PASSWORD')
+        host=environ.get('DB_HOST', 'localhost'),
+        database=environ.get('DB_NAME', 'spotify_bd2'),
+        port=environ.get('DB_PORT', '5432'),
+        user=environ.get('DB_USER', 'postgres'),
+        password=environ.get('DB_PASSWORD', 'Ut3c0128')
     )
 
 # Endpoint para la búsqueda
 @app.route('/search', methods=['POST'])
 def search():
     data = request.get_json()
-    query = data['query']
-    top_k = int(data['topK'])
-    indexing_method = data['indexingMethod']
+    query = data.get('query')
+    top_k = int(data.get('topK', 10))  # Default de 10 si no ponen
+    indexing_method = data.get('indexingMethod')
+
+    if not query or not indexing_method:
+        return jsonify(error="Invalid input"), 400
 
     if indexing_method == 'PostgreSQL':
-        # Conectar a PostgreSQL y realizar búsqueda con índice GIN
-        conn = connect_to_postgres()
-        cursor = conn.cursor()
+        try:
+            # Conectar a PostgreSQL y realizar búsqueda con índice GIN
+            conn = connect_to_postgres()
+            cursor = conn.cursor()
 
-        cursor.execute("SELECT title, lyrics, duration, image FROM songs WHERE to_tsvector('english', title || ' ' || lyrics) @@ plainto_tsquery(%s) LIMIT %s;", (query, top_k))
-        results = [{'title': row[0], 'lyrics': row[1], 'duration': row[2], 'image': row[3]} for row in cursor.fetchall()]
+            postgreSQL_select = """
+                SELECT track_name, lyrics, duration_ms, ts_rank(indexed, query) AS rank
+                FROM spotify_songs, plainto_tsquery('english', %s) query
+                ORDER BY rank DESC
+                LIMIT %s;
+            """
 
-        cursor.close()
-        conn.close()
+            cursor.execute(postgreSQL_select, (query, top_k))
+            results = [{'track_name': row[0], 'lyrics': row[1], 'duration_ms': row[2]} for row in cursor.fetchall()]
 
-        return jsonify(results=results)
+            cursor.close()
+            conn.close()
 
-    else:
-        # En caso de que el método de indexación no sea reconocido
+            return jsonify(results=results)
+        except Exception as e:
+            return jsonify(error=str(e)), 500
+
+    elif indexing_method == 'Índice local':
         return jsonify(error="Unsupported indexing method"), 400
+    else:
+        return jsonify(error="Invalid indexing method"), 400
 
 
 if __name__ == '__main__':
