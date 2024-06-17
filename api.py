@@ -1,17 +1,18 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import psycopg2
 from os import environ
 
 app = Flask(__name__)
-
+CORS(app)
 # Función para conectar con PostgreSQL
 def connect_to_postgres():
     return psycopg2.connect(
         host=environ.get('DB_HOST', 'localhost'),
-        database=environ.get('DB_NAME', 'spotify_bd2'),
+        database=environ.get('DB_NAME', 'proyecto'),
         port=environ.get('DB_PORT', '5432'),
         user=environ.get('DB_USER', 'postgres'),
-        password=environ.get('DB_PASSWORD', 'Ut3c0128')
+        password=environ.get('DB_PASSWORD', '210904')
     )
 
 # Endpoint para la búsqueda
