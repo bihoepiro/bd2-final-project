@@ -1,10 +1,15 @@
+import psycopg2
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import psycopg2
 from os import environ
+import SPIMIIndex
 
 app = Flask(__name__)
 CORS(app)
+
+# Cargar el índice una vez al inicio
+df, merged_index, idf = SPIMIIndex.index_and_search('C://Users//bepiquien//utec//bd2//spotify_songs.csv')
+
 # Función para conectar con PostgreSQL
 def connect_to_postgres():
     return psycopg2.connect(
@@ -20,7 +25,7 @@ def connect_to_postgres():
 def search():
     data = request.get_json()
     query = data.get('query')
-    top_k = int(data.get('topK', 10))  # Default de 10 si no ponen
+    top_k = int(data.get('topK', 10))  # Default de 10 si no se especifica
     indexing_method = data.get('indexingMethod')
 
     if not query or not indexing_method:
@@ -48,12 +53,19 @@ def search():
             return jsonify(results=results)
         except Exception as e:
             return jsonify(error=str(e)), 500
-
     elif indexing_method == 'Índice local':
-        return jsonify(error="Unsupported indexing method"), 400
+        try:
+            results = SPIMIIndex.query_processing(query, top_k)
+            result_list = []
+            for score, doc_id in results:
+                result_data = df.loc[doc_id, ['track_name', 'lyrics', 'duration_ms']].to_dict()
+                result_data['score'] = score
+                result_list.append(result_data)
+            return jsonify(results=result_list)
+        except Exception as e:
+            return jsonify(error=str(e)), 500
     else:
         return jsonify(error="Invalid indexing method"), 400
-
 
 if __name__ == '__main__':
     app.run(debug=True)
