@@ -94,20 +94,52 @@ def cosine_similarity(query, document_vector):
 
     return dot_product / (query_norm * document_norm)
 
-def query_processing(query, merged_index, idf, k):
+# Variables globales para almacenar el índice y otros datos necesarios
+global_index = None
+global_df = None
+global_idf = None
+
+def index_and_search(csv_file, block_size=1000):
+    df = pd.read_csv(csv_file)
+    documents = {}
+    for index, row in df.iterrows():
+        row_text = ' '.join(row.astype(str).tolist())
+        terms = nltk.word_tokenize(row_text)
+        terms = [term.lower() for term in terms if term.isalnum()]
+        documents[index] = terms
+
+    document_frequency = obtener_document_frequency(documents)
+    N = len(documents)
+    idf = obtener_idf(document_frequency, N)
+
+    spimi_invert_block(documents, block_size)
+
+    block_count = len([name for name in os.listdir() if name.startswith('block_') and name.endswith('.json')])
+    merged_index = merge_blocks(block_count)
+
+    # Guardar en variables globales
+    global global_index, global_df, global_idf
+    global_index = merged_index
+    global_df = df
+    global_idf = idf
+
+    return df, merged_index, idf
+
+def query_processing(query, k):
+    global global_index, global_df, global_idf
+
     query_terms = nltk.word_tokenize(query)
     query_terms = [stemmer.stem(term) for term in query_terms if term not in stoplist]
     query_tf = {term: query_terms.count(term) for term in query_terms}
-    query_vector = {term: tf * idf.get(term, 0) for term, tf in query_tf.items()}
+    query_vector = {term: tf * global_idf.get(term, 0) for term, tf in query_tf.items()}
 
     document_vectors = defaultdict(lambda: defaultdict(int))
 
-    for term, doc_ids in merged_index.items():
+    for term, doc_ids in global_index.items():
         if term in query_vector:
             for doc_id in doc_ids:
                 document_vectors[doc_id][term] += 1
 
-    # Calcular las similitudes y mantener los top k en un heap
     min_heap = []
     for doc_id, doc_vector in document_vectors.items():
         score = cosine_similarity(query_vector, doc_vector)
@@ -116,35 +148,5 @@ def query_processing(query, merged_index, idf, k):
         else:
             heapq.heappushpop(min_heap, (score, doc_id))
 
-    # Ordenar los top k resultados antes de devolverlos
     top_k_results = sorted(min_heap, key=lambda item: item[0], reverse=True)
     return top_k_results
-
-# Configuración de lectura de CSV y tokenización de texto
-csv_file = 'data.csv'
-df = pd.read_csv(csv_file)
-documents = {}
-for index, row in df.iterrows():
-    row_text = ' '.join(row.astype(str).tolist())
-    terms = nltk.word_tokenize(row_text)
-    terms = [term.lower() for term in terms if term.isalnum()]
-    documents[index] = terms
-
-# Calcular frecuencias de documentos e IDF
-df = obtener_document_frequency(documents)
-N = len(documents)
-idf = obtener_idf(df, N)
-
-spimi_invert_block(documents, block_size=1000)
-
-# Merge de los bloques
-block_count = len([name for name in os.listdir() if name.startswith('block_') and name.endswith('.json')])
-merged_index = merge_blocks(block_count)
-
-
-def insert_queryTOPK(query, k):
-  results = query_processing(query,merged_index, idf, k)
-  for  score, doc_id in results:
-    return doc_id, score
-      #print(f"Documento ID: {doc_id}, Similitud: {score}")
-
