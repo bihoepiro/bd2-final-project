@@ -414,7 +414,7 @@ Los resultados obtenidos de las comparaciones de tiempo de ejecución entre las 
 
 #### Gráfica de Comparación de Tiempos de Ejecución
 
-<img src="grafica_experimentacion" width="800px">
+<img src="grafica_experimentacion.png" width="800px">
 
 ##### Interpretación de la Gráfica
 
