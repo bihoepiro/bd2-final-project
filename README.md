@@ -179,7 +179,6 @@ def connect_to_postgres():
 ##### Configuración de Postgres
 En este aparto se mostrará las querys que se utilizaron en Postgres para la creación de la base de datos.
 
-```markdown
 ```sql
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS unaccent;
@@ -362,20 +361,22 @@ especificar cuántos resultados quieren ver y elegir el método de indexación p
    - Selecciona el método que deseas utilizar.
    - Realiza la búsqueda nuevamente para ver cómo cambia el tiempo de consulta y los resultados.
 
-- #### Screenshots de la GUI
+#### 3. Screenshots de la GUI
   -  ⁠Esta imagen es antes de escribir alguna consulta.
-   <img src="WhatsApp Image 2024-06-18 at 21.06.09.jpeg" width="800px">
-  - Ejecutando un consulta "boy" y usando el método de indexación de postgress. Al lado izquierdo nos retorna la posición 1 del top K.
-   <img src="WhatsApp Image 2024-06-18 at 21.06.36.jpeg" width="800px">
-  - Si deslizamos hacia abajo podemos encontrar las letras de las canciones.
-   <img src="WhatsApp Image 2024-06-18 at 21.06.51.jpeg" width="800px">
+    	<img src="WhatsApp Image 2024-06-18 at 21.06.09.jpeg" width="800px">
+  -  Ejecutando un consulta "boy" y usando el método de indexación de postgress. Al lado izquierdo nos retorna la posición 1 del top K.
+    	<img src="WhatsApp Image 2024-06-18 at 21.06.36.jpeg" width="800px">
+  -  Si deslizamos hacia abajo podemos encontrar las letras de las canciones.
+    	<img src="WhatsApp Image 2024-06-18 at 21.06.51.jpeg" width="800px">
+
+#### 4.  Video de Experimentación
   [Video de experimetacion](https://drive.google.com/drive/folders/1YBS4eYEmEPJ5OJARIYKlu2CUmoAQMwqx)
 
-### 3. Requisitos Previos
+### 5. Requisitos Previos
 
 Asegúrate de tener Node.js y npm (Node Package Manager) instalados en tu sistema.
 
-### 4. Pasos para Configurar y Ejecutar la Aplicación
+### 6. Pasos para Configurar y Ejecutar la Aplicación
  - Abre tu terminal y clona el repositorio de la aplicación.
  - Luego ejecute los siguentes comandos
    ```
