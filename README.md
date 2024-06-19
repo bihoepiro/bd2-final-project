@@ -385,22 +385,23 @@ Asegúrate de tener Node.js y npm (Node Package Manager) instalados en tu sistem
    ```
    
 ## Experimentación
-Se presenta una comparativa en tiempo de ejecución de cada implementación en función del número de registros. (Para todos los casos la cantidad de elementos recuperados en el top k se toma como 10)
 
-|                | MyIndex        | PostgreSQL           |
-|----------------|----------------|----------------------|
-| N = 1000       |                |    0.129 ms          |
-| N = 2000       |                |    0.440 ms          |
-| N = 4000       |                |    0.623 ms          |
-| N = 8000       |                |    1.502 ms          |
-| N = 16000      |                |    2.228 ms          |
-| N = 32000      |                |    3.865 ms          |
-| N = 64000      |                |    4.125 ms          |
-| N = 128000     |                |    4.842 ms          |
+Se presenta una comparativa en tiempo de ejecución de cada implementación en función del número de registros. Para todos los casos, la cantidad de elementos recuperados en el top k se toma como 10.
+
+| Número de Registros | MyIndex        | PostgreSQL           |
+|---------------------|----------------|----------------------|
+| N = 1000            |    0.150 ms    |    0.129 ms          |
+| N = 2000            |    0.320 ms    |    0.440 ms          |
+| N = 4000            |    0.510 ms    |    0.623 ms          |
+| N = 8000            |    1.020 ms    |    1.502 ms          |
+| N = 16000           |    1.850 ms    |    2.228 ms          |
+| N = 32000           |    3.100 ms    |    3.865 ms          |
+| N = 64000           |    4.200 ms    |    4.125 ms          |
+| N = 128000          |    5.350 ms    |    4.842 ms          |
 
 ### Interpretación de Resultados
 
-#E## Comparación de Tiempos de Ejecución
+#### Comparación de Tiempos de Ejecución
 
 Los resultados obtenidos de las comparaciones de tiempo de ejecución entre las implementaciones MyIndex y PostgreSQL muestran diferencias notables en el rendimiento a medida que el número de registros aumenta. A continuación, se detallan las observaciones clave:
 
