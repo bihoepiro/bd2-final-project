@@ -88,6 +88,9 @@ const Results = ({ results }) => {
                                 <Typography variant="body2" style={{ color: '#fff' }}>
                                     {result.rank}
                                 </Typography>
+                                <Typography variant="body2" style={{ color: '#fff' }}>
+                                    {result.score}
+                                </Typography>
 
                             </div>
                         </AccordionSummary>

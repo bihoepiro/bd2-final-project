@@ -54,7 +54,7 @@ const theme = createTheme({
         MuiSelect: {
             styleOverrides: {
                 root: {
-                    color: '#ffffff', // Color de texto negro
+                    color: '#ffffff',
                 },
                 icon: {
                     color: '#fff',
