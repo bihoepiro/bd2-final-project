@@ -397,3 +397,8 @@ El cual es generalmente usado para datos geoespaciales o estructurados, siendo a
 Este calcula la relevancia de un documento en función de la frecuencia de los términos de búsqueda, basándose en la posición y la cantidad de ocurrencias
 ##### Ts_rank_cd
 Parecido el Ts_rank, este considera adicionalmente la cantidad de términos distintos que cubren el documento
+
+## Integrantes
+|                    **Bihonda Epiquien Rodas**                   |                          **Paola Maguiña**                          |                         **Camila Acosta**                          |                         **Sebastian Tenorio**                         |                       **Sofía Herrera**                       |
+|:---------------------------------------------------------------:|:-------------------------------------------------------------------:|:-------------------------------------------------------------------:|:------------------------------------------------------------------:|:-------------------------------------------------------------:|
+| <a href="https://github.com/bihoepiro" target="_blank">`github.com/bihoepiro`</a> | <a href="https://github.com/paolamag" target="_blank">`github.com/paolamag`</a> | <a href="https://github.com/arosteguicp" target="_blank">`github.com/arosteguicp`</a> | <a href="https://github.com/yellow" target="_blank">`github.com/yellow`</a> | <a href="https://github.com/sofiyin" target="_blank">`github.com/sofiyin`</a> |
