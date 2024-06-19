@@ -357,7 +357,8 @@ especificar cuántos resultados quieren ver y elegir el método de indexación p
    <img src="WhatsApp Image 2024-06-18 at 21.06.36.jpeg" width="800px">
 - Si deslizamos hacia abajo podemos encontrar las letras de las canciones.
    <img src="WhatsApp Image 2024-06-18 at 21.06.51.jpeg" width="800px">
-  
+  [Video de experimetacion](https://drive.google.com/drive/folders/1YBS4eYEmEPJ5OJARIYKlu2CUmoAQMwqx)
+
 ### 3. Requisitos Previos
 
 Asegúrate de tener Node.js y npm (Node Package Manager) instalados en tu sistema.
