@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Cargar el índice una vez al inicio
-df, merged_index, idf = FinalSpimi.index_and_search('C://Users//bepiquien//utec//bd2//spotify_songs.csv')
+df, merged_index, idf = FinalSpimi.index_and_search('spotify_songs.csv')
 
 # Función para conectar con PostgreSQL
 def connect_to_postgres():
@@ -53,7 +53,7 @@ def search():
             return jsonify(results=results)
         except Exception as e:
             return jsonify(error=str(e)), 500
-    elif indexing_method == 'Índice local':
+    elif indexing_method == 'Custom Implementation':
         try:
             results = FinalSpimi.query_processing(query, top_k)
             result_list = []
