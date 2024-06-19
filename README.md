@@ -95,7 +95,7 @@ def procesar_consulta(query, k):
 ```
 
 ### Cómo almacenarmos los bloques en memoria secundaria
-![Ejemplificación visual]("entradas" {}.png)
+![Ejemplificación visual](“entradas” { }.png)
 
 ### Conexión mediante API:
 
