@@ -274,6 +274,12 @@ especificar cuántos resultados quieren ver y elegir el método de indexación p
    - Realiza la búsqueda nuevamente para ver cómo cambia el tiempo de consulta y los resultados.
 
 - #### Screenshots de la GUI
+  •⁠  ⁠Esta imagen es antes de escribir alguna consulta.
+   <img src="WhatsApp Image 2024-06-18 at 21.06.09.jpeg" width="800px">
+•  Ejecutando un consulta "boy" y usando el método de indexación de postgress. Al lado izquierdo nos retorna la posición 1 del top K.
+   <img src="WhatsApp Image 2024-06-18 at 21.06.36.jpeg" width="800px">
+• Si deslizamos hacia abajo podemos encontrar las letras de las canciones.
+   <img src="WhatsApp Image 2024-06-18 at 21.06.51.jpeg" width="800px">
 #### Instrucciones para utilizar el Frontend
 
 ##### Requisitos Previos
