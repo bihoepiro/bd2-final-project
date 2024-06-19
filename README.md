@@ -12,7 +12,7 @@ Se trabajó con una base de datos obtenida de Kaggle que contiene información s
 
 ### Índice Invertido
 
-#### Construcción del índice en memoria secundaria
+#### 1. Construcción del índice en memoria secundaria
 Para el procesamiento de bloques, creamos la clase `Bloque`, que posee como atributos `limite` (máximo de objetos), `entradas` (elementos) y `next_block` (encargado del encadenamiento de bloques).
 
 ```cpp
@@ -40,7 +40,7 @@ class Bloque:
         with open(filename, 'w') as file:
             json.dump(data, file)
 ```          
-### Ejecución óptima de consultas aplicando similitud de coseno: 
+#### 2. Ejecución óptima de consultas aplicando similitud de coseno: 
 En esta parte del código decidimos utilizar una búsqueda binaria para poder buscar de manera efectiva los términos en los bloques de memoria. Dado a que estan ordenados, accedemos a los bloques de memoria a buscar los términos y retornamos en qué bloque se encuentra. A partir de este, extraemos sus documento y su frecuencia del término
     
 ```cpp
@@ -98,7 +98,7 @@ def procesar_consulta(query, k):
 A partir del preprocesamiento obtuvimos un diciconario denso que almacene para cada palabra su df y a parte el tf de la palabra con cada doc en el que esté, el cual ordenamos y dividimos en bloques con indice global para garantizar que una palabra no se repita en bloques.
 ![Ejemplificación visual](bloques.png)
 
-### Conexión mediante API:
+## Conexión mediante API
 
 La API está construida usando Flask, un micro-framework de Python, y se beneficia de Flask-CORS para manejar peticiones de diferentes dominios. Los datos de las canciones están almacenados en un archivo CSV y en una base de datos PostgreSQL.
 
