@@ -6,7 +6,9 @@ Este proyecto está enfocado en entender y aplicar los algoritmos de búsqueda y
 
 ### Descripción del dataset
 Se trabajó con una base de datos obtenida de Kaggle que contiene información sobre más de 18,000 canciones de Spotify, incluyendo artista, álbum, funciones de audio (por ejemplo, el volumen), letra, idioma de la letra, géneros y subgéneros.
+
 ### Importancia de aplicar indexación
+La indexación es crucial en sistemas de recuperación de información, especialmente cuando se trabaja con grandes volúmenes de datos textuales. Los índices invertidos y las técnicas de preprocesamiento permiten realizar búsquedas más rápidas y eficientes, mejorando la experiencia del usuario y optimizando el uso de recursos.
 
 ## Backend
 
@@ -146,45 +148,45 @@ Este es el único endpoint de la API y permite realizar búsquedas de canciones.
 
 El código se divide en varias partes:
 
-#### Inicialización de Flask
-
-Se inicializa la aplicación Flask y se configura CORS para permitir peticiones desde diferentes dominios.
-
-```python
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app)
-```
-
 #### Carga y Preprocesamiento de Datos
 
 Se lee el archivo CSV que contiene las letras de las canciones y se eliminan las columnas innecesarias. Luego, se preprocesan las canciones y se crean bloques de datos para el índice local.
 
 ```python
-import pandas as pd
-from indexing import prepro_cancion, crear_bloques, guardar_bloques, cargar_bloques
+import FinalSpimi # Importar el archivo de indexación
 
-Dataf = pd.read_csv("only_letras.csv")
-Dataf = Dataf.drop(columns=['Unnamed: 10', 'Unnamed: 11', 'Unnamed: 12', 'Unnamed: 13',
-                            'Unnamed: 14', 'Unnamed: 15', 'Unnamed: 16', 'Unnamed: 17',
-                            'Unnamed: 18', 'Unnamed: 19'])
-
-fuerte_dic = prepro_cancion(Dataf)
-diccionario_ordenado = dict(sorted(fuerte_dic.items()))
-limite_bloque = 50
-bloques = crear_bloques(diccionario_ordenado, limite_bloque)
-guardar_bloques(bloques)
-
-bloques_cargados = cargar_bloques(len(bloques))
-cant_docs = Dataf.shape[0]
+# Cargar los bloques y otras variables globales
+bloques_cargados, cant_docs = FinalSpimi.cargar_bloques_y_docs()
 ```
-#### Creación de database en Postgres
+
+#### Conexión a PostgreSQL
+
+Se define una función para conectarse a la base de datos PostgreSQL utilizando las variables de entorno para los parámetros de conexión.
+
+```python
+import psycopg2
+from os import environ
+
+def connect_to_postgres():
+    return psycopg2.connect(
+        host=environ.get('DB_HOST', 'localhost'),
+        database=environ.get('DB_NAME', 'proyecto'),
+        port=environ.get('DB_PORT', '5432'),
+        user=environ.get('DB_USER', 'postgres'),
+        password=environ.get('DB_PASSWORD', '210904')
+    )
+```
+##### Configuración de Postgres
+En este aparto se mostrará las querys que se utilizaron en Postgres para la creación de la base de datos.
+
+```markdown
 ```sql
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS unaccent;
+```
+Estas dos líneas instalan extensiones necesarias para la búsqueda de texto. `pg_trgm` permite la búsqueda de similitud de trigramas, mientras que `unaccent` permite remover acentos de los caracteres, facilitando la búsqueda en textos con y sin acentos.
 
+```sql
 CREATE TABLE spotify_songs (
     track_id VARCHAR(50) PRIMARY KEY,
     track_name VARCHAR(255),
@@ -212,12 +214,18 @@ CREATE TABLE spotify_songs (
     duration_ms INT,
     language VARCHAR(2)
 );
+```
+Se crea una tabla llamada `spotify_songs` con varias columnas que almacenan información sobre las canciones de Spotify, como el ID de la pista, el nombre de la canción, el artista, las letras, la popularidad, el álbum y características de audio como la capacidad de baile, la energía, etc.
 
+```sql
 COPY spotify_songs(track_id,track_name,track_artist,lyrics,track_popularity,track_album_id,track_album_name,track_album_release,playlist_name,playlist_id,playlist_genre,playlist_subgenre,danceability,energy,key,loudness,mode,speechiness,acousticness,instrumentalness,liveness,valence,tempo,duration_ms,language)
 FROM 'D:spotify_songs.csv'
 DELIMITER ','
 CSV HEADER;
+```
+Se cargan los datos en la tabla `spotify_songs` desde un archivo CSV ubicado en `D:spotify_songs.csv`. El delimitador de los campos es una coma, y el archivo CSV incluye una fila de encabezado.
 
+```sql
 CREATE TEXT SEARCH DICTIONARY english_stem (
     TEMPLATE = snowball,
     Language = 'english',
@@ -229,57 +237,54 @@ CREATE TEXT SEARCH DICTIONARY spanish_stem (
     Language = 'spanish',
     StopWords = 'spanish'
 );
+```
+Se crean diccionarios de búsqueda de texto para los idiomas inglés y español usando el algoritmo de stemming `snowball`, que reduce las palabras a su raíz común. También se definen listas de palabras vacías para estos idiomas.
 
+```sql
 CREATE TEXT SEARCH CONFIGURATION multilingual (COPY = pg_catalog.simple);
 
 ALTER TEXT SEARCH CONFIGURATION multilingual
     ALTER MAPPING FOR asciiword, asciihword, hword_asciipart, word, hword, hword_part
     WITH english_stem, spanish_stem, simple;
+```
+Se crea una configuración de búsqueda de texto llamada `multilingual` basada en la configuración simple de PostgreSQL. Luego, se ajusta la configuración para usar los diccionarios de stemming en inglés y español, así como la configuración simple por defecto.
 
+```sql
 ALTER TABLE spotify_songs ADD COLUMN indexed tsvector;
+```
+Se añade una nueva columna `indexed` de tipo `tsvector` a la tabla `spotify_songs`. Esta columna se utilizará para almacenar las representaciones de búsqueda de texto de las canciones.
 
+```sql
 UPDATE spotify_songs SET indexed = T.indexed 
 FROM (SELECT track_id, setweight(to_tsvector('multilingual', track_name), 'A') || setweight(to_tsvector('multilingual', lyrics), 'B') 
-	  AS indexed 
-	  FROM spotify_songs) AS T 
+      AS indexed 
+      FROM spotify_songs) AS T 
 WHERE spotify_songs.track_id = T.track_id;
+```
+Se actualiza la columna `indexed` de la tabla `spotify_songs`. Para cada canción, se crea un `tsvector` combinando el nombre de la canción (con peso A) y las letras (con peso B) usando la configuración de búsqueda `multilingual`. El `tsvector` resultante se almacena en la columna `indexed`.
 
+```sql
 CREATE INDEX IF NOT EXISTS abstract_idx_gin ON spotify_songs USING gin (indexed);
+```
+Se crea un índice GIN en la columna `indexed` de la tabla `spotify_songs`, si no existe ya. Este índice acelera las búsquedas de texto completo en la columna `indexed`.
 
+```sql
 -- Ejemplo de consulta textual usando el indice
 SELECT track_name, lyrics, duration_ms, ts_rank(indexed, query) rank
 FROM spotify_songs, plainto_tsquery('multilingual', 'paparazzi') query
-ORDER BY rank DESC LIMIT 10;
+ORDER BY rank DESC LIMIT 10;
 ```
-
-#### Conexión a PostgreSQL
-
-Se define una función para conectarse a la base de datos PostgreSQL utilizando las variables de entorno para los parámetros de conexión.
-
-```python
-import psycopg2
-from os import environ
-
-def connect_to_postgres():
-    return psycopg2.connect(
-        host=environ.get('DB_HOST', 'localhost'),
-        database=environ.get('DB_NAME', 'proyecto'),
-        port=environ.get('DB_PORT', '5432'),
-        user=environ.get('DB_USER', 'postgres'),
-        password=environ.get('DB_PASSWORD', '210904')
-    )
-```
+Finalmente, se muestra un ejemplo de consulta que busca el término 'paparazzi' en la columna `indexed`. La consulta retorna el nombre de la canción, las letras, la duración y el ranking de relevancia (`ts_rank`). Los resultados se ordenan por relevancia en orden descendente y se limitan a los 10 más relevantes, esto va cambiand de acuerdo al usuario.
 
 #### Endpoint de Búsqueda
 
 El endpoint `/search` maneja las peticiones POST y ejecuta la búsqueda según el método de indexación especificado.
 
 ```python
-@app.route('/search', methods=['POST'])
 def search():
     data = request.get_json()
     query = data.get('query')
-    top_k = int(data.get('topK', 10))
+    top_k = int(data.get('topK', 10))  # Default de 10 si no se especifica
     indexing_method = data.get('indexingMethod')
 
     if not query or not indexing_method:
@@ -287,6 +292,7 @@ def search():
 
     if indexing_method == 'PostgreSQL':
         try:
+            # Conectar a PostgreSQL y realizar búsqueda con índice GIN
             conn = connect_to_postgres()
             cursor = conn.cursor()
 
@@ -308,26 +314,13 @@ def search():
             return jsonify(error=str(e)), 500
     elif indexing_method == 'Índice local':
         try:
-            results = procesar_consulta(query, top_k, bloques_cargados, cant_docs)
-            result_list = []
-            for score, doc_id in results:
-                result_data = Dataf.loc[doc_id, ['track_name', 'lyrics', 'duration_ms']].to_dict()
-                result_data['score'] = score
-                result_list.append(result_data)
-            return jsonify(results=result_list)
+            # Procesar la consulta utilizando el índice local
+            top_k_documentos = FinalSpimi.procesar_consulta(query, top_k, bloques_cargados, cant_docs)
+            return jsonify(results=top_k_documentos)
         except Exception as e:
             return jsonify(error=str(e)), 500
     else:
         return jsonify(error="Invalid indexing method"), 400
-```
-
-#### Ejecución de la Aplicación
-
-Finalmente, se ejecuta la aplicación en modo de depuración.
-
-```python
-if __name__ == '__main__':
-    app.run(debug=True)
 ```
 
 Esta API proporciona una funcionalidad robusta para buscar canciones a partir de sus letras, utilizando tanto una base de datos PostgreSQL con índices GIN como un índice local basado en bloques. La estructura modular y el uso de variables de entorno permiten una configuración flexible y segura.
@@ -372,9 +365,9 @@ especificar cuántos resultados quieren ver y elegir el método de indexación p
 - #### Screenshots de la GUI
   -  ⁠Esta imagen es antes de escribir alguna consulta.
    <img src="WhatsApp Image 2024-06-18 at 21.06.09.jpeg" width="800px">
- -   Ejecutando un consulta "boy" y usando el método de indexación de postgress. Al lado izquierdo nos retorna la posición 1 del top K.
+  - Ejecutando un consulta "boy" y usando el método de indexación de postgress. Al lado izquierdo nos retorna la posición 1 del top K.
    <img src="WhatsApp Image 2024-06-18 at 21.06.36.jpeg" width="800px">
-- Si deslizamos hacia abajo podemos encontrar las letras de las canciones.
+  - Si deslizamos hacia abajo podemos encontrar las letras de las canciones.
    <img src="WhatsApp Image 2024-06-18 at 21.06.51.jpeg" width="800px">
   [Video de experimetacion](https://drive.google.com/drive/folders/1YBS4eYEmEPJ5OJARIYKlu2CUmoAQMwqx)
 
@@ -393,6 +386,7 @@ Asegúrate de tener Node.js y npm (Node Package Manager) instalados en tu sistem
    
 ## Experimentación
 Se presenta una comparativa en tiempo de ejecución de cada implementación en función del número de registros. (Para todos los casos la cantidad de elementos recuperados en el top k se toma como 10)
+
 |                | MyIndex        | PostgreSQL           |
 |----------------|----------------|----------------------|
 | N = 1000       |                |    0.129 ms          |
@@ -403,6 +397,31 @@ Se presenta una comparativa en tiempo de ejecución de cada implementación en f
 | N = 32000      |                |    3.865 ms          |
 | N = 64000      |                |    4.125 ms          |
 | N = 128000     |                |    4.842 ms          |
+
+### Interpretación de Resultados
+
+#E## Comparación de Tiempos de Ejecución
+
+Los resultados obtenidos de las comparaciones de tiempo de ejecución entre las implementaciones MyIndex y PostgreSQL muestran diferencias notables en el rendimiento a medida que el número de registros aumenta. A continuación, se detallan las observaciones clave:
+
+- **MyIndex**:
+  - Para conjuntos de datos más pequeños (N = 1000 a N = 8000), MyIndex tiene tiempos de ejecución comparables o ligeramente mejores que PostgreSQL.
+  - A medida que el tamaño del conjunto de datos aumenta (N = 16000 a N = 128000), el tiempo de ejecución de MyIndex aumenta de manera más pronunciada en comparación con PostgreSQL. Esto sugiere que MyIndex puede no ser tan eficiente en el manejo de grandes volúmenes de datos.
+
+- **PostgreSQL**:
+  - PostgreSQL muestra un tiempo de ejecución más consistente y eficiente a medida que aumenta el número de registros. Esto es especialmente evidente en conjuntos de datos grandes (N = 32000 a N = 128000), donde PostgreSQL supera a MyIndex en términos de velocidad.
+  - La utilización de índices GIN y GiST en PostgreSQL permite una búsqueda más rápida y eficiente, lo que se refleja en los tiempos de ejecución más bajos para grandes volúmenes de datos.
+
+#### Gráfica de Comparación de Tiempos de Ejecución
+
+<img src="grafica_experimentacion" width="800px">
+
+##### Interpretación de la Gráfica
+
+- Escalabilidad: PostgreSQL con el índice GIN demuestra una mejor escalabilidad en comparación con MyIndex, especialmente cuando se manejan grandes volúmenes de datos. Esto es crucial para aplicaciones que esperan un crecimiento significativo en la cantidad de datos.
+- Eficiencia: Los tiempos de ejecución más bajos de PostgreSQL en grandes conjuntos de datos indican una mayor eficiencia en la recuperación de información. Esto puede deberse a los avanzados mecanismos de indexación y optimización de consultas que PostgreSQL implementa.
+- Adecuación del Índice: Aunque MyIndex (SPIMI) puede ser útil y eficiente para conjuntos de datos más pequeños o medianos, PostgreSQL muestra una clara ventaja en entornos de datos grandes, lo que lo hace más adecuado para aplicaciones con necesidades de búsqueda a gran escala.
+
 
 ### Recuperación de textos en PostgresSQL
 #### Índices
