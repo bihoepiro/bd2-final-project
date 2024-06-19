@@ -30,10 +30,13 @@ body {
     justify-content: space-between;
     margin-top: 20px;
     overflow: hidden;
+    max-width: 1200px;
+    gap: 8px;
+
 }
 
-.top-result {
-    flex: 1 1 60%;
+.top-result-container {
+    flex: 1 1 30%;
     background-color: #282828;
     padding: 20px;
     border-radius: 8px;
@@ -49,7 +52,7 @@ body {
 }
 
 .other-results {
-    flex: 1 1 35%;
+    flex: 1 1 80%;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -60,7 +63,7 @@ body {
 
 .result-item {
     background-color: #282828;
-    margin-bottom: 10px;
+    margin-bottom: 5px; /* Incrementar margen inferior */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-radius: 8px;
 }

@@ -4,8 +4,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Results from './Results';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
-
-
 const theme = createTheme({
     palette: {
         primary: {
@@ -24,8 +22,8 @@ const theme = createTheme({
                 root: {
                     marginBottom: '20px',
                     borderRadius: '8px',
-                    padding:'10px',
-                    margin:'10px',
+                    padding: '10px',
+                    margin: '10px',
                     backgroundColor: '#1DB954',
                 },
             },
@@ -34,7 +32,7 @@ const theme = createTheme({
             styleOverrides: {
                 root: {
                     display: 'flex',
-                    justifyContent: 'space-between',
+                    justifyContent: 'space-between'
                 },
             },
         },
@@ -44,14 +42,19 @@ const theme = createTheme({
                     margin: '0 10px',
                     backgroundColor: '#fff',
                     borderRadius: '4px',
-                    color: '#000',
                 },
+                input: {
+                    color: '#ffffff',
+                },
+                label: {
+                    color: '#000',
+                }
             },
         },
         MuiSelect: {
             styleOverrides: {
                 root: {
-                    color: '#fff',
+                    color: '#ffffff', // Color de texto negro
                 },
                 icon: {
                     color: '#fff',
@@ -92,23 +95,29 @@ const App = () => {
         setLoading(true);
         const startTime = performance.now();
 
-        // Conectar esto con el backend para que salga las canciones
-        setTimeout(() => {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query,
+                    topK,
+                    indexingMethod,
+                }),
+            });
+
+            const data = await response.json();
             const endTime = performance.now();
             setQueryTime(endTime - startTime);
-            setResults([
-                { title: 'Canción 1', lyrics: 'Letra de la canción 1', duration: '4:09', image: 'path/to/image1.jpg' },
-                { title: 'Canción 2', lyrics: 'Letra de la canción 2', duration: '3:51', image: 'path/to/image2.jpg' },
-                { title: 'Canción 3', lyrics: 'Letra de la canción 3', duration: '3:45', image: 'path/to/image3.jpg' },
-                { title: 'Canción 4', lyrics: 'Letra de la canción 4', duration: '3:55', image: 'path/to/image4.jpg' },
-                { title: 'Canción 5', lyrics: 'Letra de la canción 5', duration: '4:01', image: 'path/to/image5.jpg' },
-                { title: 'Canción 6', lyrics: 'Letra de la canción 6', duration: '4:12', image: 'path/to/image6.jpg' },
-                { title: 'Canción 7', lyrics: 'Letra de la canción 7', duration: '4:12', image: 'path/to/image6.jpg' },
-                { title: 'Canción 8', lyrics: 'Letra de la canción 8', duration: '4:12', image: 'path/to/image6.jpg' }
 
-            ]);
+            setResults(data.results);
+        } catch (error) {
+            console.error('Error during search:', error);
+        } finally {
             setLoading(false);
-        }, 1000);
+        }
     };
 
     return (
