@@ -64,7 +64,7 @@ En esta parte del código decidimos utilizar una búsqueda binaria para poder bu
     return None
   ```
 
- ### Procesamiento de la consulta :
+ #### 3. Procesamiento de la consulta :
  Para procesar la consulta con similitud de coseno seguimos los siguientes pasos:
  1. Obtenemos los términos de cada query
  2. Buscamos los términos en cada bloque por medio de binary search
@@ -94,7 +94,7 @@ def procesar_consulta(query, k):
     return top_k_documentos
 ```
 
-### Cómo almacenarmos los bloques en memoria secundaria
+### ¿Cómo almacenarmos los bloques en memoria secundaria?
 A partir del preprocesamiento obtuvimos un diciconario denso que almacene para cada palabra su df y a parte el tf de la palabra con cada doc en el que esté, el cual ordenamos y dividimos en bloques con indice global para garantizar que una palabra no se repita en bloques.
 ![Ejemplificación visual](bloques.png)
 
@@ -102,9 +102,9 @@ A partir del preprocesamiento obtuvimos un diciconario denso que almacene para c
 
 La API está construida usando Flask, un micro-framework de Python, y se beneficia de Flask-CORS para manejar peticiones de diferentes dominios. Los datos de las canciones están almacenados en un archivo CSV y en una base de datos PostgreSQL.
 
-#### Endpoints
+### 1. Endpoints
 
-##### `/search`
+#### `/search`
 
 Este es el único endpoint de la API y permite realizar búsquedas de canciones. Las peticiones deben ser de tipo POST y el cuerpo de la petición debe ser un JSON con los siguientes campos:
 
@@ -112,7 +112,7 @@ Este es el único endpoint de la API y permite realizar búsquedas de canciones.
 - `topK`: (Opcional) El número de resultados a devolver. Por defecto es 10.
 - `indexingMethod`: El método de indexación a utilizar, puede ser `PostgreSQL` o `Índice local`.
 
-##### Ejemplo de petición
+#### Ejemplo de petición
 
 ```json
 {
@@ -122,11 +122,11 @@ Este es el único endpoint de la API y permite realizar búsquedas de canciones.
 }
 ```
 
-#### Estructura del Código
+### 2. Estructura del Código
 
 El código se divide en varias partes:
 
-##### Inicialización de Flask
+#### Inicialización de Flask
 
 Se inicializa la aplicación Flask y se configura CORS para permitir peticiones desde diferentes dominios.
 
@@ -138,7 +138,7 @@ app = Flask(__name__)
 CORS(app)
 ```
 
-##### Carga y Preprocesamiento de Datos
+#### Carga y Preprocesamiento de Datos
 
 Se lee el archivo CSV que contiene las letras de las canciones y se eliminan las columnas innecesarias. Luego, se preprocesan las canciones y se crean bloques de datos para el índice local.
 
@@ -161,7 +161,7 @@ bloques_cargados = cargar_bloques(len(bloques))
 cant_docs = Dataf.shape[0]
 ```
 
-##### Conexión a PostgreSQL
+#### Conexión a PostgreSQL
 
 Se define una función para conectarse a la base de datos PostgreSQL utilizando las variables de entorno para los parámetros de conexión.
 
@@ -179,7 +179,7 @@ def connect_to_postgres():
     )
 ```
 
-##### Endpoint de Búsqueda
+#### Endpoint de Búsqueda
 
 El endpoint `/search` maneja las peticiones POST y ejecuta la búsqueda según el método de indexación especificado.
 
@@ -230,7 +230,7 @@ def search():
         return jsonify(error="Invalid indexing method"), 400
 ```
 
-##### Ejecución de la Aplicación
+#### Ejecución de la Aplicación
 
 Finalmente, se ejecuta la aplicación en modo de depuración.
 
@@ -241,9 +241,9 @@ if __name__ == '__main__':
 
 Esta API proporciona una funcionalidad robusta para buscar canciones a partir de sus letras, utilizando tanto una base de datos PostgreSQL con índices GIN como un índice local basado en bloques. La estructura modular y el uso de variables de entorno permiten una configuración flexible y segura.
 
-### Frontend:
+## Frontend
 Para realizar el diseño del frontend se utilizó **React** como framework.
-### Diseño de la GUI
+### 1. Diseño de la GUI
 Esta aplicación permite buscar canciones rápidamente utilizando diferentes métodos de indexación. Los usuarios pueden ingresar una consulta,
 especificar cuántos resultados quieren ver y elegir el método de indexación para optimizar la búsqueda.
 1. **Campo de Búsqueda ("Enter your query")**:
@@ -265,7 +265,7 @@ especificar cuántos resultados quieren ver y elegir el método de indexación p
      - El título de la canción.
      - La duración de la canción.
      - Un puntaje de relevancia (si aplica).
-#### Instrucciones de Uso
+### 2. Instrucciones de Uso
 
 1. **Realizar una Búsqueda**:
    - Escribe tu consulta en el campo de búsqueda. Por ejemplo, "hhshshshshs".
@@ -285,14 +285,12 @@ especificar cuántos resultados quieren ver y elegir el método de indexación p
    <img src="WhatsApp Image 2024-06-18 at 21.06.36.jpeg" width="800px">
 - Si deslizamos hacia abajo podemos encontrar las letras de las canciones.
    <img src="WhatsApp Image 2024-06-18 at 21.06.51.jpeg" width="800px">
-   
-- #### Instrucciones para utilizar el Frontend
-
-##### Requisitos Previos
+  
+### 3. Requisitos Previos
 
 Asegúrate de tener Node.js y npm (Node Package Manager) instalados en tu sistema.
 
-#### Pasos para Configurar y Ejecutar la Aplicación
+### 4. Pasos para Configurar y Ejecutar la Aplicación
  - Abre tu terminal y clona el repositorio de la aplicación.
  - Luego ejecute los siguentes comandos
    ```
@@ -300,7 +298,8 @@ Asegúrate de tener Node.js y npm (Node Package Manager) instalados en tu sistem
    npm install
    npm run dev
    ```
-### Experimentación:
+   
+## Experimentación
 Se presenta una comparativa en tiempo de ejecución de cada implementación en función del número de registros. (Para todos los casos la cantidad de elementos recuperados en el top k se toma como 10)
 |                | MyIndex        | PostgreSQL           |
 |----------------|----------------|----------------------|
