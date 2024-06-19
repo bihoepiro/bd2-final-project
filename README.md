@@ -427,11 +427,9 @@ Los resultados obtenidos de las comparaciones de tiempo de ejecución entre las 
 
 ### Recuperación de textos en PostgresSQL
 #### Índices
-Explicando cómo funciona el índice invertido para la recuperación de textos, PostgresSQL hace uso de índices **GIN** y **GiST** para acelerar las búsquedas.
+Explicando cómo funciona el índice invertido para la recuperación de textos, PostgresSQL hace uso de índices **GIN** para acelerar las búsquedas.
 ##### Generalized Inverted Index (GIN)
 Es un tipo de índice que almacena un mapeo inverso de términos a documentos, permitiendo búsquedas eficientes de términos en grandes colecciones de documentos relacionados
-##### Generalized Search Tree (GiST)
-El cual es generalmente usado para datos geoespaciales o estructurados, siendo así que permite consultas de rangos y proximidad.
 #### Funciones de similitud
 ##### Ts_rank
 Este calcula la relevancia de un documento en función de la frecuencia de los términos de búsqueda, basándose en la posición y la cantidad de ocurrencias
