@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import psycopg2
 from os import environ
-import SPIMIIndex  # Importar el archivo de indexación
+import FinalSpimi # Importar el archivo de indexación
 
 app = Flask(__name__)
 CORS(app)
