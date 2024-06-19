@@ -89,6 +89,29 @@ def procesar_consulta(query, k):
     top_k_documentos = sorted(doc_scores.items(), key=lambda item: item[1], reverse=True)[:k]
     return top_k_documentos
 ```
+### Conexión mediante API:
+
+La API está construida usando Flask, un micro-framework de Python, y se beneficia de Flask-CORS para manejar peticiones de diferentes dominios. Los datos de las canciones están almacenados en un archivo CSV y en una base de datos PostgreSQL.
+
+#### Endpoints
+
+##### `/search`
+
+Este es el único endpoint de la API y permite realizar búsquedas de canciones. Las peticiones deben ser de tipo POST y el cuerpo de la petición debe ser un JSON con los siguientes campos:
+
+- `query`: La consulta de búsqueda.
+- `topK`: (Opcional) El número de resultados a devolver. Por defecto es 10.
+- `indexingMethod`: El método de indexación a utilizar, puede ser `PostgreSQL` o `Índice local`.
+
+##### Ejemplo de petición
+
+```json
+{
+  "query": "amor",
+  "topK": 5,
+  "indexingMethod": "PostgreSQL"
+}
+
 ### Frontend:
 Para realizar el diseño del frontend se utilizó **React** como framework.
 ### Diseño de la GUI
