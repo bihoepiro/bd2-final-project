@@ -69,7 +69,8 @@ En esta parte del código decidimos utilizar una búsqueda binaria para poder bu
  1. Obtenemos los términos de cada query
  2. Buscamos los términos en cada bloque por medio de binary search
  3. Computamos el peso (tfidf) del término en el documento
- 4. Añadimos el documento dentro de los scores 
+ 4. Añadimos el documento dentro de los scores
+ 5. La función sorted() ordena los documentos en función de su puntuación de similitud, que se almacena en el diccionario doc_scores. La clave de ordenación es item[1], que representa la puntuación de similitud de cada documento. Al establecer reverse=True, se asegura que los documentos con las puntuaciones más altas aparezcan primero.
 ```cpp
 def procesar_consulta(query, k):
     query_terms = recibir_query(query)
