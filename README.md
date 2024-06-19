@@ -112,6 +112,125 @@ Este es el único endpoint de la API y permite realizar búsquedas de canciones.
   "indexingMethod": "PostgreSQL"
 }
 
+#### Estructura del Código
+
+El código se divide en varias partes:
+
+##### Inicialización de Flask
+
+Se inicializa la aplicación Flask y se configura CORS para permitir peticiones desde diferentes dominios.
+
+```python
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
+```
+
+##### Carga y Preprocesamiento de Datos
+
+Se lee el archivo CSV que contiene las letras de las canciones y se eliminan las columnas innecesarias. Luego, se preprocesan las canciones y se crean bloques de datos para el índice local.
+
+```python
+import pandas as pd
+from indexing import prepro_cancion, crear_bloques, guardar_bloques, cargar_bloques
+
+Dataf = pd.read_csv("only_letras.csv")
+Dataf = Dataf.drop(columns=['Unnamed: 10', 'Unnamed: 11', 'Unnamed: 12', 'Unnamed: 13',
+                            'Unnamed: 14', 'Unnamed: 15', 'Unnamed: 16', 'Unnamed: 17',
+                            'Unnamed: 18', 'Unnamed: 19'])
+
+fuerte_dic = prepro_cancion(Dataf)
+diccionario_ordenado = dict(sorted(fuerte_dic.items()))
+limite_bloque = 50
+bloques = crear_bloques(diccionario_ordenado, limite_bloque)
+guardar_bloques(bloques)
+
+bloques_cargados = cargar_bloques(len(bloques))
+cant_docs = Dataf.shape[0]
+```
+
+##### Conexión a PostgreSQL
+
+Se define una función para conectarse a la base de datos PostgreSQL utilizando las variables de entorno para los parámetros de conexión.
+
+```python
+import psycopg2
+from os import environ
+
+def connect_to_postgres():
+    return psycopg2.connect(
+        host=environ.get('DB_HOST', 'localhost'),
+        database=environ.get('DB_NAME', 'proyecto'),
+        port=environ.get('DB_PORT', '5432'),
+        user=environ.get('DB_USER', 'postgres'),
+        password=environ.get('DB_PASSWORD', '210904')
+    )
+```
+
+##### Endpoint de Búsqueda
+
+El endpoint `/search` maneja las peticiones POST y ejecuta la búsqueda según el método de indexación especificado.
+
+```python
+@app.route('/search', methods=['POST'])
+def search():
+    data = request.get_json()
+    query = data.get('query')
+    top_k = int(data.get('topK', 10))
+    indexing_method = data.get('indexingMethod')
+
+    if not query or not indexing_method:
+        return jsonify(error="Invalid input"), 400
+
+    if indexing_method == 'PostgreSQL':
+        try:
+            conn = connect_to_postgres()
+            cursor = conn.cursor()
+
+            postgreSQL_select = """
+                SELECT track_name, lyrics, duration_ms, ts_rank(indexed, query) AS rank
+                FROM spotify_songs, plainto_tsquery('multilingual', %s) query
+                ORDER BY rank DESC
+                LIMIT %s;
+            """
+
+            cursor.execute(postgreSQL_select, (query, top_k))
+            results = [{'track_name': row[0], 'lyrics': row[1], 'duration_ms': row[2], 'rank': row[3]} for row in cursor.fetchall()]
+
+            cursor.close()
+            conn.close()
+
+            return jsonify(results=results)
+        except Exception as e:
+            return jsonify(error=str(e)), 500
+    elif indexing_method == 'Índice local':
+        try:
+            results = procesar_consulta(query, top_k, bloques_cargados, cant_docs)
+            result_list = []
+            for score, doc_id in results:
+                result_data = Dataf.loc[doc_id, ['track_name', 'lyrics', 'duration_ms']].to_dict()
+                result_data['score'] = score
+                result_list.append(result_data)
+            return jsonify(results=result_list)
+        except Exception as e:
+            return jsonify(error=str(e)), 500
+    else:
+        return jsonify(error="Invalid indexing method"), 400
+```
+
+##### Ejecución de la Aplicación
+
+Finalmente, se ejecuta la aplicación en modo de depuración.
+
+```python
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+Esta API proporciona una funcionalidad robusta para buscar canciones a partir de sus letras, utilizando tanto una base de datos PostgreSQL con índices GIN como un índice local basado en bloques. La estructura modular y el uso de variables de entorno permiten una configuración flexible y segura.
+
 ### Frontend:
 Para realizar el diseño del frontend se utilizó **React** como framework.
 ### Diseño de la GUI
