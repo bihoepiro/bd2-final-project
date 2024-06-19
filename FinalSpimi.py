@@ -168,6 +168,7 @@ def procesar_consulta(query, k, bloques_cargados, cant_docs):
     # Obtener detalles adicionales de los documentos principales
     resultados_finales = []
     for doc_id, score_info in top_k_documentos:
+        doc_id_int = int(doc_id)
         doc_details = {
             'track_name': Dataf.loc[doc_id - 1, 'track_name'],
             'lyrics': Dataf.loc[doc_id - 1, 'lyrics'],
