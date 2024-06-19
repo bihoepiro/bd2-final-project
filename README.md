@@ -1,16 +1,20 @@
-## Introducción
--  Objetivo del proyecto:
-   Este proyecto está enfocado a entender y aplicar los algoritmos de
-  búsqueda y recuperación de la información basado en el contenido.
--  Descripción del dataset:
-  Se trabajo con la base de datos obtenido por Kaggle. Lo cual contiene varios tipos de información sobre más de 18000 canciones de Spotify, incluido el artista, el álbum,
-las funciones de audio (por ejemplo, el volumen), la letra, el idioma de la letra, los géneros y los subgéneros.
--  Importancia de aplicar indexación.
-### Backend: 
-## Backend: Indice Invertido:
 
-### Construcción del índice en memoria secundaria:
-- Para el procesamiento de bloques, creamos la clase Bloque, la cual posee como atributos limite (un máximo de cantidad de objetos), entradas (elementos) y next_block el cual se encargar del encadenamiento de bloques
+## Introducción
+
+### Objetivo del proyecto
+Este proyecto está enfocado en entender y aplicar los algoritmos de búsqueda y recuperación de información basada en el contenido.
+
+### Descripción del dataset
+Se trabajó con una base de datos obtenida de Kaggle que contiene información sobre más de 18,000 canciones de Spotify, incluyendo artista, álbum, funciones de audio (por ejemplo, el volumen), letra, idioma de la letra, géneros y subgéneros.
+### Importancia de aplicar indexación
+
+## Backend
+
+### Índice Invertido
+
+#### Construcción del índice en memoria secundaria
+Para el procesamiento de bloques, creamos la clase `Bloque`, que posee como atributos `limite` (máximo de objetos), `entradas` (elementos) y `next_block` (encargado del encadenamiento de bloques).
+
 ```cpp
 class Bloque:
     def __init__(self, limite):
@@ -111,6 +115,7 @@ Este es el único endpoint de la API y permite realizar búsquedas de canciones.
   "topK": 5,
   "indexingMethod": "PostgreSQL"
 }
+```
 
 #### Estructura del Código
 
