@@ -39,29 +39,48 @@ class Bloque:
         }
         with open(filename, 'w') as file:
             json.dump(data, file)
-```          
+```
+- Por otro lado la función crear bloques:
+Crea un objeto de la clase Bloque y se añade a una lista de bloques general. Cada entrada de un bloque representa el término como una key y como values tiene a los documentos y al peso del término. El manejo de archivos de un bloque (ejemplo: bloque_actual) se maneja como tal en formato json y se añaden a la lista mencionada anteriormente
+```cpp
+def crear_bloques(diccionario_ordenado, limite_bloque):
+	bloques = []
+    	bloque_actual = Bloque(limite_bloque)
+    	bloques.append(bloque_actual)
+
+    	for palabra, docs in diccionario_ordenado.items():
+        	if not bloque_actual.agregar_entrada(palabra, docs):
+	            nuevo_bloque = Bloque(limite_bloque)
+	            #cada bloque posee el termino y los documentos de docs y tf
+	            nuevo_bloque.agregar_entrada(palabra, docs)
+	            bloque_actual.next_block = f'bloque_{len(bloques)}.json'
+	            bloques.append(nuevo_bloque)
+	            bloque_actual = nuevo_bloque
+```
+
+
 #### 2. Ejecución óptima de consultas aplicando similitud de coseno: 
 En esta parte del código decidimos utilizar una búsqueda binaria para poder buscar de manera efectiva los términos en los bloques de memoria. Dado a que estan ordenados, accedemos a los bloques de memoria a buscar los términos y retornamos en qué bloque se encuentra. A partir de este, extraemos sus documento y su frecuencia del término
     
 ```cpp
-    def binary_search(bloque, term):
-    words = sorted(bloque.keys())
-    low = 0
-    high = len(words) - 1
+	def binary_search(bloque, term):
+		words = sorted(bloque.keys())
+	    	low = 0
+	    	high = len(words) - 1
+	
+	    	while low <= high:
+	        	mid = (low + high) // 2
+	        	mid_word = words[mid]
+	
+	        	if mid_word == term:
+	            		return bloque[mid_word]
+	
+	        	elif mid_word < term:
+				low = mid + 1
 
-    while low <= high:
-        mid = (low + high) // 2
-        mid_word = words[mid]
-
-        if mid_word == term:
-            return bloque[mid_word]
-
-        elif mid_word < term:
-            low = mid + 1
-
-        else:
-            high = mid - 1
-    return None
+	        	else:
+	            		high = mid - 1
+	    return None
   ```
 
  #### 3. Procesamiento de la consulta :
