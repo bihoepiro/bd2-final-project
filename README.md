@@ -161,6 +161,77 @@ guardar_bloques(bloques)
 bloques_cargados = cargar_bloques(len(bloques))
 cant_docs = Dataf.shape[0]
 ```
+#### Creación de database en Postgres
+```sql
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
+CREATE TABLE spotify_songs (
+    track_id VARCHAR(50) PRIMARY KEY,
+    track_name VARCHAR(255),
+    track_artist VARCHAR(255),
+    lyrics TEXT,
+    track_popularity INT,
+    track_album_id VARCHAR(50),
+    track_album_name VARCHAR(255),
+    track_album_release VARCHAR(50),
+    playlist_name VARCHAR(255),
+    playlist_id VARCHAR(50),
+    playlist_genre VARCHAR(50),
+    playlist_subgenre VARCHAR(50),
+    danceability FLOAT,
+    energy FLOAT,
+    key INT,
+    loudness FLOAT,
+    mode BOOL,
+    speechiness FLOAT,
+    acousticness FLOAT,
+    instrumentalness FLOAT,
+    liveness FLOAT,
+    valence FLOAT,
+    tempo FLOAT,
+    duration_ms INT,
+    language VARCHAR(2)
+);
+
+COPY spotify_songs(track_id,track_name,track_artist,lyrics,track_popularity,track_album_id,track_album_name,track_album_release,playlist_name,playlist_id,playlist_genre,playlist_subgenre,danceability,energy,key,loudness,mode,speechiness,acousticness,instrumentalness,liveness,valence,tempo,duration_ms,language)
+FROM 'D:spotify_songs.csv'
+DELIMITER ','
+CSV HEADER;
+
+CREATE TEXT SEARCH DICTIONARY english_stem (
+    TEMPLATE = snowball,
+    Language = 'english',
+    StopWords = 'english'
+);
+
+CREATE TEXT SEARCH DICTIONARY spanish_stem (
+    TEMPLATE = snowball,
+    Language = 'spanish',
+    StopWords = 'spanish'
+);
+
+CREATE TEXT SEARCH CONFIGURATION multilingual (COPY = pg_catalog.simple);
+
+ALTER TEXT SEARCH CONFIGURATION multilingual
+    ALTER MAPPING FOR asciiword, asciihword, hword_asciipart, word, hword, hword_part
+    WITH english_stem, spanish_stem, simple;
+
+ALTER TABLE spotify_songs ADD COLUMN indexed tsvector;
+
+UPDATE spotify_songs SET indexed = T.indexed 
+FROM (SELECT track_id, setweight(to_tsvector('multilingual', track_name), 'A') || setweight(to_tsvector('multilingual', lyrics), 'B') 
+	  AS indexed 
+	  FROM spotify_songs) AS T 
+WHERE spotify_songs.track_id = T.track_id;
+
+CREATE INDEX IF NOT EXISTS abstract_idx_gin ON spotify_songs USING gin (indexed);
+
+-- Ejemplo de consulta textual usando el indice
+SELECT track_name, lyrics, duration_ms, ts_rank(indexed, query) rank
+FROM spotify_songs, plainto_tsquery('multilingual', 'paparazzi') query
+ORDER BY rank DESC LIMIT 10;
+```
 
 #### Conexión a PostgreSQL
 
@@ -313,12 +384,15 @@ Se presenta una comparativa en tiempo de ejecución de cada implementación en f
 | N = 64000      |                |    4.125 ms          |
 | N = 128000     |                |    4.842 ms          |
 
-
-
-
-
-
-
-
-
-
+### Recuperación de textos en PostgresSQL
+#### Índices
+Explicando cómo funciona el índice invertido para la recuperación de textos, PostgresSQL hace uso de índices **GIN** y **GiST** para acelerar las búsquedas.
+##### Generalized Inverted Index (GIN)
+Es un tipo de índice que almacena un mapeo inverso de términos a documentos, permitiendo búsquedas eficientes de términos en grandes colecciones de documentos relacionados
+##### Generalized Search Tree (GiST)
+El cual es generalmente usado para datos geoespaciales o estructurados, siendo así que permite consultas de rangos y proximidad.
+#### Funciones de similitud
+##### Ts_rank
+Este calcula la relevancia de un documento en función de la frecuencia de los términos de búsqueda, basándose en la posición y la cantidad de ocurrencias
+##### Ts_rank_cd
+Parecido el Ts_rank, este considera adicionalmente la cantidad de términos distintos que cubren el documento
