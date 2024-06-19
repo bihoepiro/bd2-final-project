@@ -95,7 +95,8 @@ def procesar_consulta(query, k):
 ```
 
 ### Cómo almacenarmos los bloques en memoria secundaria
-![Ejemplificación visual](“entradas” { }.png)
+A partir del preprocesamiento obtuvimos un diciconario denso que almacene para cada palabra su df y a parte el tf de la palabra con cada doc en el que esté, el cual ordenamos y dividimos en bloques con indice global para garantizar que una palabra no se repita en bloques.
+![Ejemplificación visual](bloques.png)
 
 ### Conexión mediante API:
 
