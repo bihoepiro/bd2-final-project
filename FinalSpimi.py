@@ -144,7 +144,6 @@ def cargar_bloques_y_docs():
     cant_docs = Dataf.shape[0]
     return bloques_cargados, cant_docs
 
-def procesar_consulta(query, k, bloques_cargados, cant_docs):
     query_terms = recibir_query(query)
     doc_scores = {}
 
@@ -173,10 +172,12 @@ def procesar_consulta(query, k, bloques_cargados, cant_docs):
             'track_name': Dataf.loc[doc_id_int - 1, 'track_name'],
             'lyrics': Dataf.loc[doc_id_int - 1, 'lyrics'],
             'duration_ms': Dataf.loc[doc_id_int - 1, 'duration_ms'],
-            'score': score_info['score']
+            'score': score_info
         }
         resultados_finales.append(doc_details)
     return resultados_finales
+
+
 
 # Preprocesar las canciones y crear bloques
 fuerte_dic = prepro_cancion(Dataf)
