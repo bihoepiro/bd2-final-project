@@ -93,6 +93,10 @@ def procesar_consulta(query, k):
     top_k_documentos = sorted(doc_scores.items(), key=lambda item: item[1], reverse=True)[:k]
     return top_k_documentos
 ```
+
+### Cómo almacenarmos los bloques en memoria secundaria
+![Ejemplificación visual]("entradas" {}.png)
+
 ### Conexión mediante API:
 
 La API está construida usando Flask, un micro-framework de Python, y se beneficia de Flask-CORS para manejar peticiones de diferentes dominios. Los datos de las canciones están almacenados en un archivo CSV y en una base de datos PostgreSQL.
