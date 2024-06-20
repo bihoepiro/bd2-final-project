@@ -379,11 +379,20 @@ Asegúrate de tener Node.js y npm (Node Package Manager) instalados en tu sistem
 ### 6. Pasos para Configurar y Ejecutar la Aplicación
  - Abre tu terminal y clona el repositorio de la aplicación.
  - Luego ejecute los siguentes comandos
+1. Para activar el frontend
    ```
    cd frontend
    npm install
    npm run dev
    ```
+2. Para activar el backend
+   ```
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   python3 api.py
+   ```
+   
    
 ## Experimentación
 
