@@ -108,6 +108,11 @@ const App = () => {
                 }),
             });
 
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error);
+            }
+
             const data = await response.json();
             const endTime = performance.now();
             setQueryTime(endTime - startTime);
@@ -115,6 +120,7 @@ const App = () => {
             setResults(data.results);
         } catch (error) {
             console.error('Error during search:', error);
+            alert(`Error during search: ${error.message}`);
         } finally {
             setLoading(false);
         }

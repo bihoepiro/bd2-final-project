@@ -10,7 +10,7 @@ nltk.download('punkt')
 stemmer = SnowballStemmer('english')
 
 # Leer el archivo CSV y eliminar columnas innecesarias
-Dataf = pd.read_csv("only_letras.csv")
+Dataf = pd.read_csv("spotify_songs.csv")
 
 # DICCIONARIO DOCS
 diccionario_docs = {}
@@ -220,39 +220,46 @@ def procesar_consulta_prueba(query, k):
 
 #Funcion de procesar aplicado en API
 def procesar_consulta(query, k, bloques_cargados, cant_docs):
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+
     query_terms = recibir_query(query)
     doc_scores = {}
 
     for term in query_terms:
+        logging.debug(f"Processing term: {term}")
         for bloque in bloques_cargados:
-            #aplico binary search de manera efectiva
             result = binary_search(bloque.entradas, term)
 
             if result:
+                logging.debug(f"Found result for term {term}: {result}")
                 for doc_id, tf_value in result.items():
                     if doc_id == "df":
                         continue
                     df = result.get("df", 1)
                     tfidf = compute_tfidf(tf_value, df, cant_docs)
+                    logging.debug(f"Computed tfidf for doc {doc_id}: {tfidf}")
                     if doc_id in doc_scores:
                         doc_scores[doc_id] += tfidf
                     else:
                         doc_scores[doc_id] = tfidf
 
+    logging.debug(f"Document scores: {doc_scores}")
+
     top_k_documentos = sorted(doc_scores.items(), key=lambda item: item[1], reverse=True)[:k]
 
-    # Obtener detalles adicionales de los documentos principales
     resultados_finales = []
-    for doc_id, score_info in top_k_documentos:
-        doc_id_int = int(doc_id)
+    for doc_id, score in top_k_documentos:
+        doc_id_int = int(doc_id)  # Convertir doc_id a int
         doc_details = {
-            'track_name': Dataf.loc[doc_id_int - 1, 'track_name'],
-            'lyrics': Dataf.loc[doc_id_int - 1, 'lyrics'],
-            'duration_ms': Dataf.loc[doc_id_int - 1, 'duration_ms'],
-            'score': score_info['score']
+            'track_name': str(Dataf.loc[doc_id_int - 1, 'track_name']),
+            'lyrics': str(Dataf.loc[doc_id_int - 1, 'lyrics']),
+            'duration_ms': int(Dataf.loc[doc_id_int - 1, 'duration_ms']),
+            'score': float(score)
         }
         resultados_finales.append(doc_details)
     return resultados_finales
+
 
 # Preprocesar las canciones y crear bloques
 fuerte_dic = prepro_cancion(Dataf)

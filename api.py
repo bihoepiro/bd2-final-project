@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Cargar los bloques y otras variables globales
-bloques_cargados, cant_docs = SPIMIIndex.cargar_bloques_y_docs()
+bloques_cargados, cant_docs = FinalSpimi.cargar_bloques_y_docs()
 
 # Función para conectar con PostgreSQL
 def connect_to_postgres():
@@ -54,10 +54,10 @@ def search():
             return jsonify(results=results)
         except Exception as e:
             return jsonify(error=str(e)), 500
-    elif indexing_method == 'Índice local':
+    elif indexing_method == 'Custom Implementation':
         try:
             # Procesar la consulta utilizando el índice local
-            top_k_documentos = SPIMIIndex.procesar_consulta(query, top_k, bloques_cargados, cant_docs)
+            top_k_documentos = FinalSpimi.procesar_consulta(query, top_k, bloques_cargados, cant_docs)
             return jsonify(results=top_k_documentos)
         except Exception as e:
             return jsonify(error=str(e)), 500
