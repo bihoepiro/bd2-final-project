@@ -453,7 +453,7 @@ Parecido el Ts_rank, este considera adicionalmente la cantidad de términos dist
 Para esta técnica se usa la librería *rtree* la cual nos brinda las funciones importantes implementadas en nuestro código, entre ellas:
 
 - ```index.Property():``` Nos permite construir el índice con las propiedades de la librería
-- ```index.insert(hash(i), (*vector, *vector)):``` Nos permitió insertar las hojas del rtree de la forma (identificador, tupla del vector).
+- ```index.insert(id_, (*vector, *vector)):``` Nos permitió insertar las hojas del rtree de la forma (identificador, tupla del vector).
 - ``` index.nearest(coordinates=tuple(query_features), num_results=k)):``` Nos permite obtener los "k" vecinos más cercanos (similares a una canción) a partir de una query
 
 **Procedimiento del Rtree**
