@@ -13,6 +13,7 @@ from rtree import index
 #usamos esta libreria para indexar todos los vectores caracteristicos
 import pandas as pd
 import numpy as np
+import time
 
 data = pd.read_csv("Vec_caract_300.csv")
 ids = data.iloc[:,0].to_numpy()
@@ -71,7 +72,11 @@ class KNNRTree:
 
 myindexrtree = KNNRTree()
 myindexrtree.load_features_from_csv("Vec_caract_300.csv")
+tiempo_inicio=time.time()
 myindexrtree.build_index()
+tiempo_fin=time.time()
+tiempo_total = tiempo_fin - tiempo_inicio
+print(f"Tiempo de ejecución: {tiempo_total} segundos")
 
 #prueba query knn
 myindexrtree.knn_query(feature_vectors[1], 5)
