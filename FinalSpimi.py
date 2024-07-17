@@ -5,6 +5,7 @@ import math
 import os
 import json
 from nltk.stem.snowball import SnowballStemmer
+import requests
 
 nltk.download('punkt')
 stemmer = SnowballStemmer('english')
@@ -219,6 +220,15 @@ def procesar_consulta_prueba(query, k):
     return top_k_documentos
 
 #Funcion de procesar aplicado en API
+def get_itunes_album_cover_url(album_name):
+    search_url = f"https://itunes.apple.com/search?term={album_name}&entity=album"
+    response = requests.get(search_url)
+    data = response.json()
+    if data['resultCount'] > 0:
+        return data['results'][0]['artworkUrl100']
+    else:
+        return None
+
 def procesar_consulta(query, k, bloques_cargados, cant_docs):
     import logging
     logging.basicConfig(level=logging.DEBUG)
@@ -250,9 +260,12 @@ def procesar_consulta(query, k, bloques_cargados, cant_docs):
 
     resultados_finales = []
     for doc_id, score in top_k_documentos:
-        doc_id_int = int(doc_id)  # Convertir doc_id a int
+        doc_id_int = int(doc_id)
+        album_name = str(Dataf.loc[doc_id_int - 1, 'track_album_name'])
         doc_details = {
             'track_name': str(Dataf.loc[doc_id_int - 1, 'track_name']),
+            'track_album_name': album_name,
+            'album_cover': get_itunes_album_cover_url(album_name),
             'lyrics': str(Dataf.loc[doc_id_int - 1, 'lyrics']),
             'duration_ms': int(Dataf.loc[doc_id_int - 1, 'duration_ms']),
             'score': float(score)

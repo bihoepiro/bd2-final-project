@@ -1,17 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Accordion, AccordionSummary, AccordionDetails, Typography, Button, Box } from '@mui/material';
+import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
+import PlayCircleOutlineRoundedIcon from '@mui/icons-material/PlayCircleOutlineRounded';
+import QueueMusicRoundedIcon from '@mui/icons-material/QueueMusicRounded';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Fade from '@mui/material/Fade';
+import { CSSTransition } from 'react-transition-group';
+import './animations.css';
 
-const Results = ({ results }) => {
-    const [expanded, setExpanded] = React.useState(false);
+const Results = ({ results, onRecommend, setPlayingTrack }) => {
+    const [expanded, setExpanded] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(null);
+    const nodeRefs = useRef([]);
 
     const handleExpansion = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
+    };
+
+    const handlePlay = (trackId, index) => {
+        const trackUrl = `http://127.0.0.1:5001/audio?track_id=${trackId}`;
+        setPlayingTrack(trackUrl);
+        setActiveIndex(index);
     };
 
     const formatDuration = (duration_ms) => {
@@ -27,82 +35,95 @@ const Results = ({ results }) => {
 
     if (results.length === 0) return null;
 
-    const topResult = results[0];
-    const otherResults = results.slice(1);
-
     return (
-        <div className="results-container">
-            <Accordion
-                expanded={expanded === 'panel0'}
-                onChange={handleExpansion('panel0')}
-                TransitionComponent={Fade}
-                TransitionProps={{ timeout: 400 }}
-                className="result-item"
-                style={{ backgroundColor: '#282828', borderRadius: '8px', marginBottom: '10px' }}
-            >
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon style={{ color: '#1DB954' }} />}
-                    aria-controls="panel0-content"
-                    id="panel0-header"
+        <Box>
+            {results.map((result, index) => (
+                <Accordion
+                    key={index}
+                    expanded={expanded === `panel${index}`}
+                    onChange={handleExpansion(`panel${index}`)}
+                    style={{ backgroundColor: '#282828', borderRadius: '8px', marginBottom: '10px' }}
                 >
-                    <MusicNoteIcon style={{ fontSize: 50, color: '#1DB954', marginRight: '10px' }} />
-                    <div className="result-info">
-                        <Typography variant="h4" style={{ color: '#1DB954', margin: 0 }}>
-                            {topResult.track_name}
-                        </Typography>
-                        <Typography variant="body2" style={{ color: '#fff' }}>
-                            {formatDuration(topResult.duration_ms)}
-                        </Typography>
-                    </div>
-                </AccordionSummary>
-                <AccordionDetails style={{ backgroundColor: '#282828', color: '#fff' }}>
-                    <Typography>
-                        {truncateLyrics(topResult.lyrics, 250)}
-                    </Typography>
-                </AccordionDetails>
-            </Accordion>
-            <div className="other-results">
-                {otherResults.map((result, index) => (
-                    <Accordion
-                        key={index}
-                        expanded={expanded === `panel${index + 1}`}
-                        onChange={handleExpansion(`panel${index + 1}`)}
-                        TransitionComponent={Fade}
-                        TransitionProps={{ timeout: 400 }}
-                        className="result-item"
-                        style={{ backgroundColor: '#282828', borderRadius: '8px', marginBottom: '10px' }}
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreRoundedIcon style={{ color: '#1DB954' }} />}
+                        aria-controls={`panel${index}-content`}
+                        id={`panel${index}-header`}
                     >
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon style={{ color: '#1DB954' }} />}
-                            aria-controls={`panel${index + 1}-content`}
-                            id={`panel${index + 1}-header`}
+                        <Box
+                            component="span"
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '60px',
+                                height: '60px',
+                                borderRadius: '4px',
+                                marginRight: '10px',
+                                backgroundColor: result.album_cover ? 'transparent' : '#444',
+                            }}
                         >
-                            <MusicNoteIcon style={{ fontSize: 50, color: '#1DB954', marginRight: '10px' }} />
-                            <div className="result-info">
-                                <Typography variant="h5" style={{ color: '#1DB954', margin: 0 }}>
-                                    {result.track_name}
-                                </Typography>
-                                <Typography variant="body2" style={{ color: '#fff' }}>
-                                    {formatDuration(result.duration_ms)}
-                                </Typography>
-                                <Typography variant="body2" style={{ color: '#fff' }}>
-                                    {result.rank}
-                                </Typography>
-                                <Typography variant="body2" style={{ color: '#fff' }}>
-                                    {result.score}
-                                </Typography>
-
-                            </div>
-                        </AccordionSummary>
-                        <AccordionDetails style={{ backgroundColor: '#282828', color: '#fff' }}>
-                            <Typography>
-                                {truncateLyrics(result.lyrics, 250)}
+                            {result.album_cover ? (
+                                <img src={result.album_cover} alt={`${result.track_name} cover`} style={{ width: '60px', height: '60px', borderRadius: '4px' }} />
+                            ) : (
+                                <MusicNoteIcon style={{ fontSize: 50, color: '#1DB954' }} />
+                            )}
+                        </Box>
+                        <Box>
+                            <Typography variant="h5" style={{ color: '#1DB954', margin: 0 }}>
+                                {result.track_name}
                             </Typography>
-                        </AccordionDetails>
-                    </Accordion>
-                ))}
-            </div>
-        </div>
+                            <Typography variant="body2" style={{ color: '#fff' }}>
+                                {result.track_artist}
+                            </Typography>
+                        </Box>
+                        <Box marginLeft="auto" display="flex" alignItems="center">
+                            <Button
+                                onClick={() => onRecommend(result.track_id)}
+                                style={{
+                                    color: '#fff',
+                                    backgroundColor: 'transparent',
+                                    borderRadius: '50%',
+                                    padding: 0,
+                                    minWidth: '40px',
+                                    minHeight: '40px',
+                                    marginRight: '10px'
+                                }}
+                            >
+                                <QueueMusicRoundedIcon style={{ fontSize: 40, color: '#1DB954' }} />
+                            </Button>
+                            <Button
+                                onClick={() => handlePlay(result.track_id, index)}
+                                style={{
+                                    color: '#fff',
+                                    backgroundColor: 'transparent',
+                                    borderRadius: '50%',
+                                    padding: 0,
+                                    minWidth: '40px',
+                                    minHeight: '40px'
+                                }}
+                            >
+                                <PlayCircleOutlineRoundedIcon style={{ fontSize: 40, color: '#1DB954' }} />
+                            </Button>
+                        </Box>
+                    </AccordionSummary>
+                    <AccordionDetails style={{ backgroundColor: '#282828', color: '#fff' }}>
+                        <CSSTransition
+                            in={expanded === `panel${index}`}
+                            timeout={300}
+                            classNames="fade"
+                            unmountOnExit
+                            nodeRef={nodeRefs.current[index] || (nodeRefs.current[index] = React.createRef())}
+                        >
+                            <div ref={nodeRefs.current[index]}>
+                                <Typography>
+                                    {truncateLyrics(result.lyrics, 250)}
+                                </Typography>
+                            </div>
+                        </CSSTransition>
+                    </AccordionDetails>
+                </Accordion>
+            ))}
+        </Box>
     );
 };
 

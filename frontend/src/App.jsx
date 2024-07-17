@@ -1,87 +1,11 @@
 import React, { useState } from 'react';
-import { Container, TextField, Button, Select, MenuItem, FormControl, InputLabel, Typography, CircularProgress, AppBar, Toolbar, CssBaseline, Box } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Container, CssBaseline, Box, Grid, Typography, Paper, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import Results from './Results';
+import Header from './Header';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-
-const theme = createTheme({
-    palette: {
-        primary: {
-            main: '#1DB954',
-        },
-        background: {
-            default: '#121212'
-        },
-        text: {
-            primary: '#1e1c1c',
-        }
-    },
-    components: {
-        MuiAppBar: {
-            styleOverrides: {
-                root: {
-                    marginBottom: '20px',
-                    borderRadius: '8px',
-                    padding: '10px',
-                    margin: '10px',
-                    backgroundColor: '#1DB954',
-                },
-            },
-        },
-        MuiToolbar: {
-            styleOverrides: {
-                root: {
-                    display: 'flex',
-                    justifyContent: 'space-between'
-                },
-            },
-        },
-        MuiTextField: {
-            styleOverrides: {
-                root: {
-                    margin: '0 10px',
-                    backgroundColor: '#fff',
-                    borderRadius: '4px',
-                },
-                input: {
-                    color: '#ffffff',
-                },
-                label: {
-                    color: '#000',
-                }
-            },
-        },
-        MuiSelect: {
-            styleOverrides: {
-                root: {
-                    color: '#ffffff',
-                },
-                icon: {
-                    color: '#fff',
-                },
-            },
-        },
-        MuiMenu: {
-            styleOverrides: {
-                paper: {
-                    backgroundColor: '#282828',
-                    color: '#fff',
-                },
-            },
-        },
-        MuiButton: {
-            styleOverrides: {
-                root: {
-                    backgroundColor: '#1DB954',
-                    color: '#fff',
-                    '&:hover': {
-                        backgroundColor: '#1ed760',
-                    },
-                },
-            },
-        },
-    },
-});
+import Recommendations from './Recommendations';
+import theme from './theme';
 
 const App = () => {
     const [query, setQuery] = useState('');
@@ -90,13 +14,16 @@ const App = () => {
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [queryTime, setQueryTime] = useState(0);
+    const [recommendations, setRecommendations] = useState([]);
+    const [method, setMethod] = useState('KNN-Secuencial');
+    const [playingTrack, setPlayingTrack] = useState(null);
 
     const handleSearch = async () => {
         setLoading(true);
         const startTime = performance.now();
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/search', {
+            const response = await fetch('http://127.0.0.1:5001/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -126,62 +53,123 @@ const App = () => {
         }
     };
 
+    const handleRecommendations = (trackId) => {
+        // Simulate recommendations logic
+        const simulatedRecommendations = [
+            {
+                track_name: "Song 1",
+                artist_name: "Artist 1",
+                album_name: "Album 1",
+                release_date: "2021-01-01",
+                album_cover: "https://via.placeholder.com/60",
+                track_url: "URL1"
+            },
+            {
+                track_name: "Song 2",
+                artist_name: "Artist 2",
+                album_name: "Album 2",
+                release_date: "2021-02-01",
+                album_cover: "https://via.placeholder.com/60",
+                track_url: "URL2"
+            },
+            {
+                track_name: "Song 3",
+                artist_name: "Artist 3",
+                album_name: "Album 3",
+                release_date: "2021-03-01",
+                album_cover: "https://via.placeholder.com/60",
+                track_url: "URL3"
+            },
+        ];
+        setRecommendations(simulatedRecommendations);
+    };
+
+    const handleIdentify = (blobUrl, blob) => {
+        // Simulated identified song data
+        const identifiedSong = {
+            track_name: 'Simulated Song',
+            artist_name: 'Simulated Artist',
+            album_name: 'Simulated Album',
+            release_date: '2021-01-01',
+            album_cover: 'https://via.placeholder.com/60',
+            track_url: blobUrl,
+        };
+        setRecommendations([identifiedSong]);
+    };
+
+    const handleMethodChange = (event) => {
+        setMethod(event.target.value);
+    };
+
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Container className="container">
-                <AppBar position="static" color="primary">
-                    <Toolbar>
-                        <TextField
-                            label="Enter your query"
-                            variant="outlined"
-                            size="small"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                        />
-                        <TextField
-                            label="Top K"
-                            type="number"
-                            variant="outlined"
-                            size="small"
-                            value={topK}
-                            onChange={(e) => setTopK(e.target.value)}
-                        />
-                        <FormControl variant="outlined" size="small">
-                            <InputLabel style={{ color: '#fff' }}>Indexing Method</InputLabel>
-                            <Select
-                                value={indexingMethod}
-                                onChange={(e) => setIndexingMethod(e.target.value)}
-                                label="Indexing Method"
-                                MenuProps={{
-                                    PaperProps: {
-                                        style: {
-                                            backgroundColor: '#282828',
-                                            color: '#fff',
-                                        },
-                                    },
-                                }}
-                            >
-                                <MenuItem value="Custom Implementation">Custom Implementation</MenuItem>
-                                <MenuItem value="PostgreSQL">PostgreSQL</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <Button variant="contained" color="primary" onClick={handleSearch} disabled={loading}>
-                            {loading ? <CircularProgress size={24} /> : 'Search'}
-                        </Button>
-                    </Toolbar>
-                </AppBar>
+            <Container maxWidth={false} style={{ padding: '20px' }}>
+                <Header
+                    query={query}
+                    setQuery={setQuery}
+                    topK={topK}
+                    setTopK={setTopK}
+                    indexingMethod={indexingMethod}
+                    setIndexingMethod={setIndexingMethod}
+                    handleSearch={handleSearch}
+                    loading={loading}
+                />
                 {queryTime > 0 && (
-                    <Box display="flex" alignItems="center" justifyContent="center" className="query-time">
+                    <Box display="flex" alignItems="center" justifyContent="center" className="query-time" style={{ color: '#fff', marginBottom: '20px' }}>
                         <Typography variant="body1" gutterBottom>
                             Query Time: {queryTime.toFixed(2)} ms
                         </Typography>
                         <AccessTimeIcon style={{ fontSize: 20, color: '#1DB954', marginLeft: '8px' }} />
                     </Box>
                 )}
-                <div className="results-container">
-                    <Results results={results} />
-                </div>
+                <Grid container spacing={2}>
+                    <Grid item xs={8}>
+                        {results.length === 0 ? (
+                            <Box display="flex" alignItems="center" justifyContent="center" style={{ color: '#fff', marginTop: '50px' }}>
+                                <Typography variant="h5">No results found. Please enter a query to search for songs.</Typography>
+                            </Box>
+                        ) : (
+                            <Results results={results} onRecommend={handleRecommendations} setPlayingTrack={setPlayingTrack} />
+                        )}
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Paper style={{ padding: '20px', backgroundColor: '#121212', borderRadius: '8px' }}>
+                            <Typography variant="h5" gutterBottom style={{ color: '#1DB954' }}>
+                                Recommended Songs
+                            </Typography>
+                            <FormControl variant="outlined" fullWidth style={{ marginBottom: '20px' }}>
+                                <InputLabel id="method-select-label" style={{ color: '#fff' }}>Test Method</InputLabel>
+                                <Select
+                                    labelId="method-select-label"
+                                    value={method}
+                                    onChange={handleMethodChange}
+                                    label="Test Method"
+                                    style={{ color: '#fff' }}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            style: {
+                                                backgroundColor: '#282828',
+                                                color: '#fff',
+                                            },
+                                        },
+                                    }}
+                                >
+                                    <MenuItem value="KNN-Secuencial">KNN-Secuencial</MenuItem>
+                                    <MenuItem value="KNN-RTree">KNN-RTree</MenuItem>
+                                    <MenuItem value="KNN-HighD">KNN-HighD</MenuItem>
+                                </Select>
+                            </FormControl>
+                            <Recommendations recommendations={recommendations} setPlayingTrack={setPlayingTrack} handleIdentify={handleIdentify} />
+                        </Paper>
+                    </Grid>
+                </Grid>
+                {playingTrack && (
+                    <audio controls autoPlay style={{ width: '100%', marginTop: '20px' }}>
+                        <source src={playingTrack} type="audio/mpeg" />
+                        Your browser does not support the audio element.
+                    </audio>
+                )}
             </Container>
         </ThemeProvider>
     );
