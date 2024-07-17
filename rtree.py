@@ -9,6 +9,7 @@ Original file is located at
 
 pip install Rtree
 
+!pip install rtree
 from rtree import index
 #usamos esta libreria para indexar todos los vectores caracteristicos
 import pandas as pd
@@ -18,63 +19,67 @@ import time
 data = pd.read_csv("Vec_caract_300.csv")
 ids = data.iloc[:,0].to_numpy()
 feature_vectors = data.iloc[:, 1:].astype(float).to_numpy()
+datainfo = pd.DataFrame(pd.read_csv("only_letras.csv"))
 
-feature_vectors[0]
-
-#imprtar el rtree
-
-
+import pandas as pd
+import numpy as np
+from rtree import index
 
 class KNNRTree:
     def __init__(self):
-        #self.num_bits = num_bits
         self.index = None
         self.collection = []
         self.id_to_vector = {}
 
+
     def load_features_from_csv(self, csv_path: str):
-       df = pd.read_csv(csv_path)
-       ids = df.iloc[:,0].to_numpy()
-       self.collection = df.iloc[:, 1:].astype(float).to_numpy()
-       self.id_to_vector = {hash(id_): vector for id_, vector in zip(ids, self.collection)}
-        ##print(f"Cargadas {len(self.collection)} características con dimensión {self.collection[0][1].shape[0]}")
+        df = pd.read_csv(csv_path)
+        ids = df.iloc[:, 0].to_numpy()
+        self.collection = df.iloc[:, 1:].astype(float).to_numpy()
+        self.id_to_vector = {id_: vector for id_, vector in enumerate(self.collection)}
+
 
     def build_index(self):
-
-       # if not self.collection:
-        #    raise ValueError("No features loaded.")
-        d = self.collection.shape[0] #dimension, saca los atributos de los vectores.
+        d = self.collection.shape[1]
         p = index.Property()
-        p.dimension = feature_vectors.shape[1]
-        self.index = index.Index(properties = p) #añado propieties
-        #print(f"Índice construido con características de dimensión {d}")
-        for i, vector in zip(ids, feature_vectors):
-            self.index.insert(hash(i), (*vector, *vector))#inserto con (hash(id), vector )
+        p.dimension = d
+        self.index = index.Index(properties=p)
+        for id_, vector in self.id_to_vector.items():
+            self.index.insert(id_, (*vector, *vector))
 
     def knn_query(self, query_features: np.ndarray, k: int) -> list:
         if self.index is None:
             raise ValueError("Index has not been built.")
 
-        nearest_neighbors = list(self.index.nearest(coordinates=tuple(query_features), num_results=k)) #aplico nearest
-
-        results = [] #guardare todos los más cercanos
-        for nn in nearest_neighbors: #por cada uno de near neighbors
-            print("cercano")
-            vector = self.id_to_vector[nn] #obtengo sus ids
-            distance = np.linalg.norm(np.array(vector) - query_features) #y sus distancias
-            results.append((nn, distance))
+        nearest_neighbors = list(self.index.nearest(coordinates=tuple(query_features), num_results=k))
+        results = []
+        for nn in nearest_neighbors:
+            vector = self.id_to_vector[nn]
+            distance = np.linalg.norm(np.array(vector) - query_features)
+            results.append((datainfo["name"][nn], distance))
 
         return results
 
-        #distances, indices = self.index.search(query_features.reshape(1, -1).astype('float32'), k)
-        #results = [(self.collection[idx][0], distances[0][i]) for i, idx in enumerate(indices[0])]
-        #return results
+# Cargar los datos
+data = pd.read_csv("Vec_caract_300.csv")
+ids = data.iloc[:, 0].to_numpy()
+feature_vectors = data.iloc[:, 1:].astype(float).to_numpy()
+
+# Crear el objeto KNNRTree
+knn_rtree = KNNRTree()
+knn_rtree.load_features_from_csv("Vec_caract_300.csv")
+knn_rtree.build_index()
+
+# Realizar una consulta KNN
+query_vector = feature_vectors[0]
+results = knn_rtree.knn_query(query_vector, k=5)
+print(results)
 
 myindexrtree = KNNRTree()
 myindexrtree.load_features_from_csv("Vec_caract_300.csv")
-tiempo_inicio=time.time()
+tiempo_inicio = time.time()
 myindexrtree.build_index()
-tiempo_fin=time.time()
+tiempo_fin = time.time()
 tiempo_total = tiempo_fin - tiempo_inicio
 print(f"Tiempo de ejecución: {tiempo_total} segundos")
 
