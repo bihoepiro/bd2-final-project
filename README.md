@@ -532,7 +532,7 @@ Ejemplo de obtención del url:
 `https://itunes.apple.com/search?term={Night%20at%20the%20opera}&entity=album`
 
 Respuesta de Itunes
-````json
+```json
 "artistName":"Queen", "collectionName":"A Night at the Opera (Deluxe Edition)", "collectionCensoredName":"A Night at the Opera (Deluxe Edition)", "artistViewUrl":"https://music.apple.com/us/artist/queen/3296287?uo=4", "collectionViewUrl":"https://music.apple.com/us/album/a-night-at-the-opera-deluxe-edition/1440650816?uo=4", "artworkUrl60":"https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/a7/00/d7/a700d715-a493-19a5-3de9-5753d139419f/14DMGIM05597.rgb.jpg/60x60bb.jpg",
 .
 .
