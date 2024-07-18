@@ -209,7 +209,7 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 #### 1. **Procedimiento del R-tree**
 
 1.1 **Obtención del MBR de los puntos:** 
-- Al in1icio, se deben obtener el conjunto de puntos y calcular el valor del MBR (Minimum Bounding Rectangle) de ellos.
+- Al inicio, se deben obtener el conjunto de puntos y calcular el valor del MBR (Minimum Bounding Rectangle) de ellos.
 - Agrupar los puntos acorde a su cercanía entre ellos.
 1.2 **Agrupación con nodos internos:** 
 - Una vez se comienzan a agrupar los puntos, hay un límite máximo de cantidad de puntos en los rectángulos. Para ello, se agrupan recursivamente y se expanden en MBRs más grandes (los cuales tendrán punteros que apuntan a sus nodos hijos).
