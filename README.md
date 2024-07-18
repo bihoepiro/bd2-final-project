@@ -249,7 +249,7 @@ Partiendo de que un índice reduce su eficiencia con una alta dimensionalidad en
 Es una técnica de indexación que permite buscar vecinos aproximados en espacios de alta dimensión de manera eficiente. Principalmente mapea puntos de un espacio de alta dimensión a un espacio de menor dimensión (o a un conjunto de "cubos" hash), siendo que los puntos cerca del espacio original tengan una alta probabilidad caer en el mismo cubo hash.
 Dentro de las funciones de hashing que usa para la localización, estos también permiten mapear vectores de alta dimensión a un conjunto más manejable de bits, lo cual reduce la complejidad de búsqueda en el espacio de alta dimensión. 
 Esta parte del código crea el índice LSH utilizando las características cargadas. Si no hay características cargadas, lanza un error. Convierte los vectores en un array de Numpy y los añade al índice LSH.
-```
+```py
 def build_index(self):
     if not self.collection:
         raise ValueError("No features loaded.")
