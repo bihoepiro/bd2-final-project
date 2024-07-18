@@ -153,15 +153,15 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 2.3 **Búsqueda de vecinos más cercanos (`knn_query`):**
    - **Complejidad:** O(k log n)
    - **Explicación:** La búsqueda de los (k) vecinos más cercanos implica realizar una búsqueda prioritaria en el árbol, evaluando las distancias y comparándolas para encontrar las (k) más pequeñas. Este proceso tiene una complejidad logarítmica para cada uno de los (k) vecinos buscados.
-### Ventajas y Desventajas del R-tree
+### 3. Ventajas y Desventajas del R-tree
 
-#### 3. Ventajas del R-tree
+3.1 **Ventajas del R-tree**
 
 - **Eficiencia en Consultas Espaciales:** Los R-trees son muy eficientes para realizar consultas espaciales como búsqueda de vecinos más cercanos y búsqueda por rango.
 - **Adaptabilidad a Datos Dinámicos:** Permiten la inserción y eliminación de elementos sin necesidad de una reconstrucción completa del índice.
 - **Soporte Multidimensional:** Pueden gestionar datos en múltiples dimensiones, lo que los hace útiles en aplicaciones geoespaciales y de bases de datos espaciales.
 
-#### 4. Desventajas del R-tree
+3.2 **Desventajas del R-tree**
 
 - **Complejidad de Implementación:** La implementación de R-trees puede ser más compleja en comparación con otros índices como los B-trees.
 - **Rendimiento Variable:** El rendimiento del R-tree puede degradarse si los datos no están bien distribuidos, resultando en nodos desbalanceados y menos eficientes.
@@ -171,12 +171,12 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 Partiendo de que un índice reduce su eficiencia con una alta dimensionalidad en espacios vectoriales (maldición de la dimensionalidad), existen diversas formas de mitigar este problema. Una de ellas es la reducción de la dimensionalidad, mediante técnicas como PCA, SVD, Random Projection, UMAP, entre otros. Para el presente proyecto sin embargo se trabajó con el índice LSH (Locality-Sensitive Hashing) para la implementación de Faiss con KNN, el cual mitiga en otro enfoque este problema.
 
 ##### **Indice LSH**
-\
+
 Es una técnica de indexación que permite buscar vecinos aproximados en espacios de alta dimensión de manera eficiente. Principalmente mapea puntos de un espacio de alta dimensión a un espacio de menor dimensión (o a un conjunto de "cubos" hash), siendo que los puntos cerca del espacio original tengan una alta probabilidad caer en el mismo cubo hash.
 Dentro de las funciones de hashing que usa para la localización, estos también permiten mapear vectores de alta dimensión a un conjunto más manejable de bits, lo cual reduce la complejidad de búsqueda en el espacio de alta dimensión. 
 
  ##### **FAISS (Facebook AI Similarity Search)**
-\
+
 Se encarga de la búsqueda eficiente de similitud y recuperación de información en grandes colecciones de vectores de alta dimensión (en este caso los feature vectors de las canciones).
 Además de gestionar el índice LSH, la librería también cumple con:
 - Añadir vectores de alta dimensión al índice
@@ -193,11 +193,11 @@ Además de gestionar el índice LSH, la librería también cumple con:
    - **Explicación:** Convertir la colección de características en un array de Numpy tiene una complejidad de n*d. A eso se le suma la adición de vectores al índice, ya que cada vector se debe hash a num_bits cubos
 1.3 **Consulta K-Vecinos:**
    - **Complejidad:** O(d) + O(k * num_bits) + O(k)
-   - **Explicación:** La conversión de vectores en el formato especificado tiene complejidad en función de la dimensión manejada, mientras que la operación de búsqueda en el índice usando cada cubo debe ser el k de recuperación por el número de bits asociado. Por último, obtener los resultados finales y sus distancias requieren de una complejidad de k
+   - **Explicación:** La conversión de vectores en el formato especificado tiene complejidad en función de la dimensión manejada, mientras que la operación de búsqueda en el índice usando cada cubo debe ser el k de recuperación por el número de bits asociado. Por último, obtener los resultados finales y sus distancias requieren de una complejidad de k.
 
 ## Frontend
 
-El frontend consume dos API's, una para Índice Invertido (api.py) y otra para Índice Multidimensional ().
+El frontend consume dos API's, una para Índice Invertido (`api.py`) y otra para Índice Multidimensional ().
 
 Para realizar el diseño del frontend se utilizó **React** como framework.
 ### 1. Diseño de la GUI
@@ -242,22 +242,26 @@ especificar cuántos resultados quieren ver y elegir el método de indexación p
    - Elegir una de las canciones de las que se mostraron de la primera búsqueda.
    - Seleccionar el método de KNN que se dea utilizar.
 
-#### 3. Screenshots de la GUI - P2
+### 3. Screenshots de la GUI - P2
   -  ⁠Esta imagen es antes de escribir alguna consulta.
     	<img src="WhatsApp Image 2024-06-18 at 21.06.09.jpeg" width="800px">
-  -  Ejecutando un consulta "boy" y usando el método de indexación de postgress. Al lado izquierdo nos retorna la posición 1 del top K.
+  -  Ejecutando una consulta "boy" y usando el método de indexación de postgress. Al lado izquierdo nos retorna la posición 1 del top K.
     	<img src="WhatsApp Image 2024-06-18 at 21.06.36.jpeg" width="800px">
   -  Si deslizamos hacia abajo podemos encontrar las letras de las canciones.
     	<img src="WhatsApp Image 2024-06-18 at 21.06.51.jpeg" width="800px">
 
-#### 6.  Video de Experimentación - P2
+### 4. Screenshots de la GUI - P3
+ -  Ejecutando una consulta "taki" y seleccionando una canción para traer los K-vecinos.
+    	<img src="p3gui.jpeg" width="800px">
+     
+### 5.  Video de Experimentación - P2
   [Video de experimetacion](https://drive.google.com/drive/folders/1YBS4eYEmEPJ5OJARIYKlu2CUmoAQMwqx)
 
-### 7. Requisitos Previos
+### 6. Requisitos Previos
 
 Asegúrate de tener Node.js y npm (Node Package Manager) instalados en tu sistema.
 
-### 8. Pasos para Configurar y Ejecutar la Aplicación
+### 7. Pasos para Configurar y Ejecutar la Aplicación
  - Abre tu terminal y clona el repositorio de la aplicación.
  - Luego ejecute los siguentes comandos
 1. Para activar el frontend
@@ -274,9 +278,9 @@ Asegúrate de tener Node.js y npm (Node Package Manager) instalados en tu sistem
    python3 api.py
    ```
 
-### 9. **Adicionales**
+### 8. **Adicionales**
 
-#### 9.1 **Póster de la canción**
+8.1 **Póster de la canción**
 Para mostrar el trabajo de la mejor manera y que la plataforma de búsqueda de canciones sea lo más realista, se realizaron consultas a la API de Itunes de Apple.
 Se envía el nombre del álbum de una canción y la respuesta de Itunes es en formato .json donde mediante la clave [artworkUrl100] se obtiene la url del poster del álbum de la canción para que esta pueda ser representada en nuestro frontend.
 
@@ -303,7 +307,7 @@ def get_itunes_album_cover_url(album_name):
 Y la url de la clave dada, lleva al poster:
 <img src="nightattheopera.png" width="100px">
 
-#### 9.2 **Identificación de canciones mediante audio**
+8.2 **Identificación de canciones mediante audio**
 
 El proyecto no solo detecta los K-vecinos de las canciones resultantes de la primera query (Índice Invertido). Adicionalemnte, escucha la música alrededor en ese momento, y la identifca para así mostrar los K-vecinos de dicha canción.
 El proceso de detección de canción se implemnta en el archivo ```SongRecognizer```. La cual permite identificar una canción a partir de un archivo de audio WAV utilizando la API de ACRCloud. La clase incluye un método recognize_song que envía el archivo de audio a la API y devuelve los resultados en formato JSON. Además, el método extraer_fv extrae características específicas de la pista y el artista identificado, combinando datos de dos archivos CSV y devolviendo el ```track_id``` de la pista correspondiente. 
