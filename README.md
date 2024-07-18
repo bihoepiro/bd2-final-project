@@ -497,7 +497,7 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 - **Rendimiento Variable:** El rendimiento del R-tree puede degradarse si los datos no están bien distribuidos, resultando en nodos desbalanceados y menos eficientes.
 
 #### KNN-HighD:
-Partiendo de que un índice reduce su eficiencia con una alta dimensionalidad en espacios vectoriales (maldición de la dimensionalidad), existen diversas formas de mitigar este problema. Una de ellas es la reducción de la dimensionalidad, mediante formas como PCA, SVD, Random Projection, UMAP, entre otros. Para el presente proyecto sin embargo se trabajó con el índice LSH (Locality-Sensitive Hashing) para la implementación de Faiss con KNN. 
+Partiendo de que un índice reduce su eficiencia con una alta dimensionalidad en espacios vectoriales (maldición de la dimensionalidad), existen diversas formas de mitigar este problema. Una de ellas es la reducción de la dimensionalidad, mediante técnicas como PCA, SVD, Random Projection, UMAP, entre otros. Para el presente proyecto sin embargo se trabajó con el índice LSH (Locality-Sensitive Hashing) para la implementación de Faiss con KNN, el cual mitiga en otro enfoque este problema.
 
 **Indice LSH**
 \
