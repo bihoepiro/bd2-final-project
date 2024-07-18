@@ -550,7 +550,21 @@ Respuesta de Itunes
 Y la url de la clave dada nos lleva al poster:
 <img src="nightattheopera.png" width="100px">
 
-Así también realizamos la extracción de los audios a shazam:
+Así también realizamos la extracción de los audios a shazam.
+
+#Visualización de la diferencia entre los índices y la búsqueda sequencial:
+
+<img src="comparaciones.jpg" width="100px">
+
+| N          | KNN Sequential | KNN Rtree   | KNN HighD  |
+|------------|----------------|-------------|------------|
+| N=1000     | 2.0441         | 1.30        | 0          |
+| N=2000     | 2.9122         | 2.62284     | 0          |
+| N=4000     | 7.0893         | 6.26730918  | 1.2035     |
+| N=8000     | 8.1664         | 8.213       | 1.070737   |
+| N=10000    | 10.244         | 9.4135      | 1.189      |
+| N=12000    | 11.322         | 10.614      | 1.84607    |
+| N=14000    | 12.4           | 11.8145     | 1.4512     |
 
 ## Integrantes
 |                    **Bihonda Epiquien Rodas**                   |                          **Paola Maguiña**                          |                         **Camila Acosta**                          |                         **Sebastian Tenorio**                         |                       **Sofía Herrera**                       |
