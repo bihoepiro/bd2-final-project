@@ -3,6 +3,8 @@ from flask_cors import CORS
 from sklearn.neighbors import KDTree
 import pandas as pd
 import requests
+from KNNHighD import KNNHighD
+from KNNRTree import KNNRTree
 
 # Inicializar la aplicación Flask
 app = Flask(__name__)
@@ -38,6 +40,33 @@ def get_itunes_album_cover_url(album_name):
         return data['results'][0]['artworkUrl100']
     else:
         return None
+
+#construir KNNHighD
+knn_highd = KNNHighD(num_bits=32)
+knn_highd.load_features_from_csv('features_vectors.csv')
+knn_highd.build_index()
+
+
+def buscar_knn_highD(consulta_id, k):
+    consulta_vector = df_caracteristicas[df_caracteristicas['track_id'] == consulta_id].drop(columns=['track_id']).values
+    if consulta_vector.shape[0] == 0:
+        raise ValueError(f"Track ID {consulta_id} not found in features_vectors.csv")
+    query_features = np.array(consulta_vector, dtype=np.float32)
+    results = knn_highd.knn_query(query_features, k=k)
+    return results
+
+#construir KNNRtree
+knn_rtree = KNNRTree(num_bits=32)
+knn_rtree.load_features_from_csv('features_vectors.csv')
+knn_rtree.build_index()
+
+def buscar_knn_RTree(consulta_id, k):
+    consulta_vector = df_caracteristicas[df_caracteristicas['track_id'] == consulta_id].drop(columns=['track_id']).values
+    if consulta_vector.shape[0] == 0:
+        raise ValueError(f"Track ID {consulta_id} not found in features_vectors.csv")
+    query_features = np.array(consulta_vector, dtype=np.float32)
+    results = knn_rtree.knn_query(query_features, k=k)
+    return results
 
 @app.route('/recommend_knn', methods=['POST'])
 def recommend_knn():
