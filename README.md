@@ -373,11 +373,12 @@ Se presenta una comparativa en tiempo de ejecución de cada implementación en f
 
 | Número de Registros | MyIndex        | PostgreSQL           |
 |---------------------|----------------|----------------------|
-| N = 1000            |    0.150 ms    |    0.129 ms          |
-| N = 2000            |    0.320 ms    |    0.440 ms          |
-| N = 4000            |    0.510 ms    |    0.623 ms          |
-| N = 8000            |    1.020 ms    |    1.502 ms          |
-| N = 16000           |    1.850 ms    |    2.228 ms          |
+| N = 1000            |    0.150 ms    |    0.080 ms          |
+| N = 2000            |    0.320 ms    |    0.100 ms          |
+| N = 4000            |    0.510 ms    |    0.120 ms          |
+| N = 8000            |    1.020 ms    |    0.150 ms          |
+| N = 16000           |    1.850 ms    |    0.200 ms          |
+
 
 
 ### Interpretación de Resultados
@@ -396,7 +397,7 @@ Los resultados obtenidos de las comparaciones de tiempo de ejecución entre las 
 
 #### Gráfica de Comparación de Tiempos de Ejecución
 
-<img src="grafica_experimentacion.png" width="800px">
+<img src="grafica_experimentacion_GIN_SPIMI.png" width="800px">
 
 ##### Interpretación de la Gráfica
 
