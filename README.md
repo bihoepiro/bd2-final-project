@@ -445,6 +445,25 @@ Este calcula la relevancia de un documento en función de la frecuencia de los t
 ##### Ts_rank_cd
 Parecido el Ts_rank, este considera adicionalmente la cantidad de términos distintos que cubren el documento
 
+## Índice multidimensional
+
+### Técnicas de indexación y librerías utilizadas
+
+#### KNN-Rtree:
+Para esta técnica se usa la librería *rtree* la cual nos brinda las funciones importantes implementadas en nuestro código, entre ellas:
+
+- ```index.Property():``` Nos permite construir el índice con las propiedades de la librería
+- ```index.insert(id_, (*vector, *vector)):``` Nos permitió insertar las hojas del rtree de la forma (identificador, tupla del vector).
+- ``` index.nearest(coordinates=tuple(query_features), num_results=k)):``` Nos permite obtener los "k" vecinos más cercanos (similares a una canción) a partir de una query
+
+**Procedimiento del Rtree**
+
+- **Obtención del MBR de los puntos:** 
+    - Al inicio se deben obtener el conjunto de puntos y calcular el valor del MBR (Minimun Bounding Distance) de ellos.
+    - Agrupar los puntos acorde a su cercanía entre ellos.
+- **Agrupación con nodos internos:** 
+    - Una vez se comienzan a agrupar los puntos, hay un límite máximo de cantidad de puntos en los rectángulos. Para ello se agrupan recursivamente y se expanden en MBRs más grandes (los cuales tendrán punteros que apuntan a sus nodos hijos)
+
 ## Integrantes
 |                    **Bihonda Epiquien Rodas**                   |                          **Paola Maguiña**                          |                         **Camila Acosta**                          |                         **Sebastian Tenorio**                         |                       **Sofía Herrera**                       |
 |:---------------------------------------------------------------:|:-------------------------------------------------------------------:|:-------------------------------------------------------------------:|:------------------------------------------------------------------:|:-------------------------------------------------------------:|
