@@ -14,7 +14,7 @@ La indexación es una técnica fundamental en los sistemas de recuperación de i
 
 ## Índice Invertido
 
-### 1. Construcción del índice en memoria secundaria
+1. **Construcción del índice en memoria secundaria**
 Para el procesamiento de bloques, creamos la clase `Bloque`, que posee como atributos `limite` (máximo de objetos), `entradas` (elementos) y `next_block` (encargado del encadenamiento de bloques).
 
 ```cpp
@@ -61,7 +61,7 @@ def crear_bloques(diccionario_ordenado, limite_bloque):
 ```
 
 
-### 2. Ejecución óptima de consultas aplicando similitud de coseno: 
+2. **Ejecución óptima de consultas aplicando similitud de coseno: **
 En esta parte del código decidimos utilizar una búsqueda binaria para poder buscar de manera efectiva los términos en los bloques de memoria. Dado a que estan ordenados, accedemos a los bloques de memoria a buscar los términos y retornamos en qué bloque se encuentra. A partir de este, extraemos sus documento y su frecuencia del término
     
 ```cpp
@@ -85,7 +85,7 @@ En esta parte del código decidimos utilizar una búsqueda binaria para poder bu
 	    return None
   ```
 
- ### 3. Procesamiento de la consulta :
+3. **Procesamiento de la consulta :**
  Para procesar la consulta con similitud de coseno seguimos los siguientes pasos:
  1. Obtenemos los términos de cada query
  2. Buscamos los términos en cada bloque por medio de binary search
@@ -174,7 +174,7 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 
 <img src="rtree80.jpg" width="700px">
 
-#### 1. **Procedimiento del R-tree**
+1. **Procedimiento del R-tree**
 
 1.1 **Obtención del MBR de los puntos:** 
 - Al in1icio, se deben obtener el conjunto de puntos y calcular el valor del MBR (Minimum Bounding Rectangle) de ellos.
@@ -182,7 +182,7 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 1.2 **Agrupación con nodos internos:** 
 - Una vez se comienzan a agrupar los puntos, hay un límite máximo de cantidad de puntos en los rectángulos. Para ello, se agrupan recursivamente y se expanden en MBRs más grandes (los cuales tendrán punteros que apuntan a sus nodos hijos).
 
-#### 2. **Complejidad de las Operaciones del R-tree**
+2. **Complejidad de las Operaciones del R-tree**
 
 2.1 **Construcción del R-tree:**
    - **Complejidad:** O(nlog n)
@@ -235,7 +235,7 @@ Además de gestionar el índice LSH, la librería también cumple con:
 - Realizar consultas eficientes para encontrar los vecinos más cercanos a un vector de consulta: `distances, indices = self.index.search(query_features.reshape(1, -1).astype('float32'), k)`  
 - Devolver las distancias y los índices de los vecinos más cercanos: `results = [(self.collection[idx][0], distances[0][i]) for i, idx in enumerate(indices[0])]`
 - 
-#### 1. **Complejidad de las Operaciones del KNN-HighD**
+1. **Complejidad de las Operaciones del KNN-HighD**
 
 1.1 **Carga de Características desde el CSV:**
    - **Complejidad:** O(n * d)
