@@ -1,4 +1,4 @@
-# Proyecto: Full-Text Search
+# Proyecto Final
 ## Introducción
 
 ### Objetivo del proyecto
@@ -552,7 +552,7 @@ Y la url de la clave dada nos lleva al poster:
 
 Así también realizamos la extracción de los audios a shazam.
 
-#Visualización de la diferencia entre los índices y la búsqueda sequencial:
+## Visualización de la diferencia entre los índices y la búsqueda sequencial:
 
 <img src="comparaciones.jpg" width="100px">
 
