@@ -12,9 +12,9 @@ La indexación es crucial en sistemas de recuperación de información, especial
 
 ## Backend
 
-### Índice Invertido
+## Índice Invertido
 
-#### 1. Construcción del índice en memoria secundaria
+### 1. Construcción del índice en memoria secundaria
 Para el procesamiento de bloques, creamos la clase `Bloque`, que posee como atributos `limite` (máximo de objetos), `entradas` (elementos) y `next_block` (encargado del encadenamiento de bloques).
 
 ```cpp
@@ -61,7 +61,7 @@ def crear_bloques(diccionario_ordenado, limite_bloque):
 ```
 
 
-#### 2. Ejecución óptima de consultas aplicando similitud de coseno: 
+### 2. Ejecución óptima de consultas aplicando similitud de coseno: 
 En esta parte del código decidimos utilizar una búsqueda binaria para poder buscar de manera efectiva los términos en los bloques de memoria. Dado a que estan ordenados, accedemos a los bloques de memoria a buscar los términos y retornamos en qué bloque se encuentra. A partir de este, extraemos sus documento y su frecuencia del término
     
 ```cpp
@@ -85,7 +85,7 @@ En esta parte del código decidimos utilizar una búsqueda binaria para poder bu
 	    return None
   ```
 
- #### 3. Procesamiento de la consulta :
+ ### 3. Procesamiento de la consulta :
  Para procesar la consulta con similitud de coseno seguimos los siguientes pasos:
  1. Obtenemos los términos de cada query
  2. Buscamos los términos en cada bloque por medio de binary search
@@ -121,11 +121,12 @@ A partir del preprocesamiento obtuvimos un diciconario denso que almacene para c
 ![Ejemplificación visual](bloques.png)
 
 
-#### KNN Secuencial
+## Índice Multidimensional
+### KNN Secuencial
 
 En esta técnica se utiliza un KDTree de sklearn para realizar búsquedas KNN en un conjunto de características cargadas desde un archivo CSV. Este enfoque es más directo y proporciona resultados exactos, pero puede volverse ineficiente en espacios de alta dimensionalidad.
 
-#### Código de Implementación
+#### 1. Código de Implementación
 
 ```python
 import pandas as pd
@@ -149,25 +150,22 @@ def buscar_knn(consulta_id, k):
     return resultados
 ```
 
-### Descripción de la Librería
+#### 2. Descripción de la Librería
 
-#### `sklearn.neighbors.KDTree`
+2.1 `sklearn.neighbors.KDTree`
 La librería `sklearn.neighbors.KDTree` pertenece a `scikit-learn`, una biblioteca muy popular en Python para el aprendizaje automático. El `KDTree` es una estructura de datos en forma de árbol que permite realizar búsquedas rápidas de vecinos más cercanos (KNN).
 
-### Ventajas del KNN Secuencial con KDTree
+#### 3. Ventajas y Desventajas del KNN-Secuencial
 
-1. **Eficiencia de Búsqueda**:
+3.1 **Ventajas**:
    - **Rápida Recuperación**: Los árboles KDTree permiten realizar consultas de KNN de manera eficiente, reduciendo el tiempo de búsqueda en comparación con una búsqueda secuencial directa en un espacio de alta dimensión.
      
-
-### Desventajas del KNN Secuencial con KDTree
+3.2 **Desventajas**
 
    - **Limitación en Dimensiones**: Los KDTree funcionan mejor en espacios de dimensiones más bajas (generalmente menos de 20). Y los vectores de nuestro data set es de 80 dimensiones.
    - **Actualizaciones Dinámicas**: No es eficiente para datos que cambian frecuentemente, ya que requeriría la reconstrucción del árbol.
 
-### Índice Multidimensional
-
-#### KNN-Rtree
+### KNN-Rtree
 Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones importantes implementadas en nuestro código, entre ellas:
 
 - ```index.Property()```: Nos permite construir el índice con las propiedades de la librería.
@@ -178,10 +176,10 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 
 #### 1. **Procedimiento del R-tree**
 
-##### **Obtención del MBR de los puntos:** 
+1.1 **Obtención del MBR de los puntos:** 
 - Al in1icio, se deben obtener el conjunto de puntos y calcular el valor del MBR (Minimum Bounding Rectangle) de ellos.
 - Agrupar los puntos acorde a su cercanía entre ellos.
-##### **Agrupación con nodos internos:** 
+1.2 **Agrupación con nodos internos:** 
 - Una vez se comienzan a agrupar los puntos, hay un límite máximo de cantidad de puntos en los rectángulos. Para ello, se agrupan recursivamente y se expanden en MBRs más grandes (los cuales tendrán punteros que apuntan a sus nodos hijos).
 
 #### 2. **Complejidad de las Operaciones del R-tree**
@@ -197,7 +195,7 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 2.3 **Búsqueda de vecinos más cercanos (`knn_query`):**
    - **Complejidad:** O(k log n)
    - **Explicación:** La búsqueda de los (k) vecinos más cercanos implica realizar una búsqueda prioritaria en el árbol, evaluando las distancias y comparándolas para encontrar las (k) más pequeñas. Este proceso tiene una complejidad logarítmica para cada uno de los (k) vecinos buscados.
-### 3. Ventajas y Desventajas del R-tree
+#### 3. Ventajas y Desventajas del R-tree
 
 3.1 **Ventajas del R-tree**
 
@@ -210,24 +208,34 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 - **Complejidad de Implementación:** La implementación de R-trees puede ser más compleja en comparación con otros índices como los B-trees.
 - **Rendimiento Variable:** El rendimiento del R-tree puede degradarse si los datos no están bien distribuidos, resultando en nodos desbalanceados y menos eficientes.
 
-#### KNN-HighD
+### KNN-HighD
 
 Partiendo de que un índice reduce su eficiencia con una alta dimensionalidad en espacios vectoriales (maldición de la dimensionalidad), existen diversas formas de mitigar este problema. Una de ellas es la reducción de la dimensionalidad, mediante técnicas como PCA, SVD, Random Projection, UMAP, entre otros. Para el presente proyecto sin embargo se trabajó con el índice LSH (Locality-Sensitive Hashing) para la implementación de Faiss con KNN, el cual mitiga en otro enfoque este problema.
 
-##### **Indice LSH**
+#### **Índice LSH**
 
 Es una técnica de indexación que permite buscar vecinos aproximados en espacios de alta dimensión de manera eficiente. Principalmente mapea puntos de un espacio de alta dimensión a un espacio de menor dimensión (o a un conjunto de "cubos" hash), siendo que los puntos cerca del espacio original tengan una alta probabilidad caer en el mismo cubo hash.
 Dentro de las funciones de hashing que usa para la localización, estos también permiten mapear vectores de alta dimensión a un conjunto más manejable de bits, lo cual reduce la complejidad de búsqueda en el espacio de alta dimensión. 
+Esta parte del código crea el índice LSH utilizando las características cargadas. Si no hay características cargadas, lanza un error. Convierte los vectores en un array de Numpy y los añade al índice LSH.
+```
+def build_index(self):
+    if not self.collection:
+        raise ValueError("No features loaded.")
+    d = self.collection[0][1].shape[0]
+    self.index = faiss.IndexLSH(d, self.num_bits)
+    features = np.asarray([feat for _, feat in self.collection], dtype=np.float32)
+    self.index.add(features)
+```
 
- ##### **FAISS (Facebook AI Similarity Search)**
+ #### **FAISS (Facebook AI Similarity Search)**
 
 Se encarga de la búsqueda eficiente de similitud y recuperación de información en grandes colecciones de vectores de alta dimensión (en este caso los feature vectors de las canciones).
 Además de gestionar el índice LSH, la librería también cumple con:
-- Añadir vectores de alta dimensión al índice
-- Realizar consultas eficientes para encontrar los vecinos más cercanos a un vector de consulta
-- Devolver las distancias y los índices de los vecinos más cercanos.
-
-### 1. **Complejidad de las Operaciones del KNN-HighD**
+- Añadir vectores de alta dimensión al índice:  `self.index.add(features)` 
+- Realizar consultas eficientes para encontrar los vecinos más cercanos a un vector de consulta: `distances, indices = self.index.search(query_features.reshape(1, -1).astype('float32'), k)`  
+- Devolver las distancias y los índices de los vecinos más cercanos: `results = [(self.collection[idx][0], distances[0][i]) for i, idx in enumerate(indices[0])]`
+- 
+#### 1. **Complejidad de las Operaciones del KNN-HighD**
 
 1.1 **Carga de Características desde el CSV:**
    - **Complejidad:** O(n * d)
