@@ -120,6 +120,38 @@ def procesar_consulta(query, k):
 A partir del preprocesamiento obtuvimos un diciconario denso que almacene para cada palabra su df y a parte el tf de la palabra con cada doc en el que esté, el cual ordenamos y dividimos en bloques con indice global para garantizar que una palabra no se repita en más de un bloque y facilitar el acceso a sus datos para el cálculo de la similitud por coseno.
 ![Ejemplificación visual](bloques.png)
 
+### GIN en PostgresSQL
+
+#### 1. Creación del Índice GIN
+El índice GIN en PostgreSQL se utiliza para mejorar significativamente la eficiencia de las búsquedas de texto completo dentro de bases de datos. Al aplicar un índice GIN a una columna tsvector, como en el caso de indexed en la tabla spotify_songs, PostgreSQL crea una estructura invertida que mapea términos de texto a los documentos que los contienen.
+
+```sql
+ALTER TABLE spotify_songs ADD COLUMN indexed tsvector;
+```
+#### 2. Generación de tsvector
+Para cada canción, se genera un tsvector combinando el título y las letras con pesos asignados ('A' y 'B') utilizando to_tsvector('multilingual', ...). Este tsvector captura tanto la importancia relativa del título como el contenido de las letras de la canción.
+
+```sql
+UPDATE spotify_songs SET indexed = T.indexed 
+FROM (SELECT track_id, setweight(to_tsvector('multilingual', track_name), 'A') || setweight(to_tsvector('multilingual', lyrics), 'B') AS indexed 
+      FROM spotify_songs) AS T 
+WHERE spotify_songs.track_id = T.track_id;
+```
+Posteriormente, se crea un índice GIN en la columna indexed para acelerar las búsquedas de texto completo. Este índice permite una recuperación eficiente de información incluso en grandes volúmenes de datos textuales.
+```sql
+CREATE INDEX IF NOT EXISTS abstract_idx_gin ON spotify_songs USING gin (indexed);
+```
+
+#### 3. Consulta de Búsqueda de Texto Completo
+Para ejecutar una consulta de búsqueda de texto completo, se utiliza plainto_tsquery para convertir términos de búsqueda en un objeto tsquery. Luego, se emplea ts_rank para calcular la relevancia de los resultados basándose en la frecuencia y posición de los términos coincidentes.
+
+```sql
+SELECT track_name, lyrics, duration_ms, ts_rank(indexed, query) AS rank
+FROM spotify_songs, plainto_tsquery('multilingual', 'paparazzi') query
+WHERE query @@ indexed
+ORDER BY rank DESC
+LIMIT 10;
+```
 
 ## Índice Multidimensional
 ### KNN Secuencial
