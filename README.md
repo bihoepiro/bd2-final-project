@@ -448,9 +448,6 @@ Parecido el Ts_rank, este considera adicionalmente la cantidad de términos dist
 ## Índice multidimensional
 
 ### Técnicas de indexación y librerías utilizadas
-
-Claro, a continuación te presento una versión unificada y detallada del apartado de técnicas de indexación y librerías utilizadas, incluyendo la información adicional que solicitaste:
-
 ---
 
 ### Técnicas de Indexación y Librerías Utilizadas
