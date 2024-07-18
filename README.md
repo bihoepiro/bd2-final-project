@@ -449,21 +449,52 @@ Parecido el Ts_rank, este considera adicionalmente la cantidad de términos dist
 
 ### Técnicas de indexación y librerías utilizadas
 
+Claro, a continuación te presento una versión unificada y detallada del apartado de técnicas de indexación y librerías utilizadas, incluyendo la información adicional que solicitaste:
+
+---
+
+### Técnicas de Indexación y Librerías Utilizadas
+
 #### KNN-Rtree:
-Para esta técnica se usa la librería *rtree* la cual nos brinda las funciones importantes implementadas en nuestro código, entre ellas:
+Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones importantes implementadas en nuestro código, entre ellas:
 
-- ```index.Property():``` Nos permite construir el índice con las propiedades de la librería
-- ```index.insert(id_, (*vector, *vector)):``` Nos permitió insertar las hojas del rtree de la forma (identificador, tupla del vector).
-- ``` index.nearest(coordinates=tuple(query_features), num_results=k)):``` Nos permite obtener los "k" vecinos más cercanos (similares a una canción) a partir de una query
+- ```index.Property()```: Nos permite construir el índice con las propiedades de la librería.
+- ```index.insert(id_, (*vector, *vector))```: Nos permitió insertar las hojas del R-tree de la forma (identificador, tupla del vector).
+- ```index.nearest(coordinates=tuple(query_features), num_results=k)```: Nos permite obtener los "k" vecinos más cercanos (similares a una canción) a partir de una consulta.
 
-**Procedimiento del Rtree**
+**Procedimiento del R-tree**
 
 - **Obtención del MBR de los puntos:** 
-    - Al inicio se deben obtener el conjunto de puntos y calcular el valor del MBR (Minimun Bounding Distance) de ellos.
+    - Al inicio, se deben obtener el conjunto de puntos y calcular el valor del MBR (Minimum Bounding Rectangle) de ellos.
     - Agrupar los puntos acorde a su cercanía entre ellos.
 - **Agrupación con nodos internos:** 
-    - Una vez se comienzan a agrupar los puntos, hay un límite máximo de cantidad de puntos en los rectángulos. Para ello se agrupan recursivamente y se expanden en MBRs más grandes (los cuales tendrán punteros que apuntan a sus nodos hijos)
- 
+    - Una vez se comienzan a agrupar los puntos, hay un límite máximo de cantidad de puntos en los rectángulos. Para ello, se agrupan recursivamente y se expanden en MBRs más grandes (los cuales tendrán punteros que apuntan a sus nodos hijos).
+
+### Complejidad de las Operaciones del R-tree
+
+1. **Construcción del R-tree:**
+   - **Complejidad:** \(O(n \log n)\)
+   - **Explicación:** La construcción del R-tree implica organizar los datos en una estructura jerárquica de nodos, donde cada nodo puede contener múltiples entradas. En promedio, la inserción de cada elemento en el R-tree tiene una complejidad logarítmica debido a la subdivisión del espacio en regiones, y repetir esta operación para \(n\) elementos da como resultado una complejidad total de \(O(n \log n)\).
+
+2. **Inserción de un elemento:**
+   - **Complejidad:** \(O(\log n)\)
+   - **Explicación:** La inserción de un elemento en el R-tree requiere encontrar la hoja adecuada donde se debe insertar el nuevo elemento. Esto implica recorrer el árbol desde la raíz hasta una hoja, lo que típicamente toma tiempo logarítmico respecto al número de elementos ya presentes en el árbol.
+
+3. **Búsqueda de vecinos más cercanos (`knn_query`):**
+   - **Complejidad:** \(O(k \log n)\)
+   - **Explicación:** La búsqueda de los \(k\) vecinos más cercanos implica realizar una búsqueda prioritaria en el árbol, evaluando las distancias y comparándolas para encontrar las \(k\) más pequeñas. Este proceso tiene una complejidad logarítmica para cada uno de los \(k\) vecinos buscados.
+### Ventajas y Desventajas del R-tree
+
+#### Ventajas del R-tree
+
+- **Eficiencia en Consultas Espaciales:** Los R-trees son muy eficientes para realizar consultas espaciales como búsqueda de vecinos más cercanos y búsqueda por rango.
+- **Adaptabilidad a Datos Dinámicos:** Permiten la inserción y eliminación de elementos sin necesidad de una reconstrucción completa del índice.
+- **Soporte Multidimensional:** Pueden gestionar datos en múltiples dimensiones, lo que los hace útiles en aplicaciones geoespaciales y de bases de datos espaciales.
+
+#### Desventajas del R-tree
+
+- **Complejidad de Implementación:** La implementación de R-trees puede ser más compleja en comparación con otros índices como los B-trees.
+- **Rendimiento Variable:** El rendimiento del R-tree puede degradarse si los datos no están bien distribuidos, resultando en nodos desbalanceados y menos eficientes.
 
 #### KNN-HighD:
 Partiendo de que un índice reduce su eficiencia con una alta dimensionalidad en espacios vectoriales (maldición de la dimensionalidad), existen diversas formas de mitigar este problema. Una de ellas es la reducción de la dimensionalidad, mediante formas como PCA, SVD, Random Projection, UMAP, entre otros. Para el presente proyecto sin embargo se trabajó con el índice LSH (Locality-Sensitive Hashing) para la implementación de Faiss con KNN. 
@@ -484,7 +515,7 @@ Además de gestionar el índice LSH, la librería también cumple con:
 **Plus del Front**
 
 Para mostrar nuestro trabajo de la mejor manera y que la plataforma de búsqueda de canciones sea lo más realista, realizamos web scraping a la web de itunes donde por cada canción guardamos el url de su imágen (poster) y esta sea llamada desde la api de de nuestro backend.
- ```
+ ```py
 def get_itunes_album_cover_url(album_name):
     search_url = f"https://itunes.apple.com/search?term={album_name}&entity=album"
     response = requests.get(search_url)
@@ -494,8 +525,10 @@ def get_itunes_album_cover_url(album_name):
         return data['results'][0]['artworkUrl100']  #se puede ajustar el tamaño (100, 200, 400, etc)
     else:
         return None
-
  ```
+
+Así también realizamos la extracción de los audios a shazam:
+
 ## Integrantes
 |                    **Bihonda Epiquien Rodas**                   |                          **Paola Maguiña**                          |                         **Camila Acosta**                          |                         **Sebastian Tenorio**                         |                       **Sofía Herrera**                       |
 |:---------------------------------------------------------------:|:-------------------------------------------------------------------:|:-------------------------------------------------------------------:|:------------------------------------------------------------------:|:-------------------------------------------------------------:|
