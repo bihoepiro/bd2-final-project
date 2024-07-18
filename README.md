@@ -388,12 +388,12 @@ Se presenta una comparativa en tiempo de ejecución de cada implementación en f
 Los resultados obtenidos de las comparaciones de tiempo de ejecución entre las implementaciones MyIndex y PostgreSQL muestran diferencias notables en el rendimiento a medida que el número de registros aumenta. A continuación, se detallan las observaciones clave:
 
 - **MyIndex**:
-  - Para conjuntos de datos más pequeños (N = 1000 a N = 8000), MyIndex tiene tiempos de ejecución comparables o ligeramente mejores que PostgreSQL.
-  - A medida que el tamaño del conjunto de datos aumenta (N = 16000 a N = 128000), el tiempo de ejecución de MyIndex aumenta de manera más pronunciada en comparación con PostgreSQL. Esto sugiere que MyIndex puede no ser tan eficiente en el manejo de grandes volúmenes de datos.
+  - Para conjuntos de datos más pequeños (N = 1000 a N = 8000), MyIndex tiene tiempos de ejecución significativamente mayores en comparación con PostgreSQL.
+  - AA medida que el tamaño del conjunto de datos aumenta (N = 16000), el tiempo de ejecución de MyIndex aumenta de manera más pronunciada, lo que sugiere que MyIndex puede no ser tan eficiente en el manejo de grandes volúmenes de datos.
 
 - **PostgreSQL**:
-  - PostgreSQL muestra un tiempo de ejecución más consistente y eficiente a medida que aumenta el número de registros. Esto es especialmente evidente en conjuntos de datos grandes (N = 32000 a N = 128000), donde PostgreSQL supera a MyIndex en términos de velocidad.
-  - La utilización de índices GIN y GiST en PostgreSQL permite una búsqueda más rápida y eficiente, lo que se refleja en los tiempos de ejecución más bajos para grandes volúmenes de datos.
+  - PostgreSQL muestra un tiempo de ejecución consistentemente menor a medida que aumenta el número de registros. Esto es especialmente evidente en conjuntos de datos grandes (N = 16000), donde PostgreSQL supera significativamente a MyIndex en términos de velocidad.
+  - La utilización de índices GIN en PostgreSQL permite una búsqueda más rápida y eficiente, lo que se refleja en los tiempos de ejecución más bajos para grandes volúmenes de datos.
 
 #### Gráfica de Comparación de Tiempos de Ejecución
 
