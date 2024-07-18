@@ -514,7 +514,9 @@ Además de gestionar el índice LSH, la librería también cumple con:
 
 **Plus del Front**
 
-Para mostrar nuestro trabajo de la mejor manera y que la plataforma de búsqueda de canciones sea lo más realista, realizamos web scraping a la web de itunes donde por cada canción guardamos el url de su imágen (poster) y esta sea llamada desde la api de de nuestro backend.
+Para mostrar nuestro trabajo de la mejor manera y que la plataforma de búsqueda de canciones sea lo más realista, realizamos consultas a la API de Itunes de apple.
+Le enviamos el nombre del álbum de una canción y la respuesta de Itunes es en formato .json donde mediante la clave [artworkUrl100] obtenemos la url del poster del álbum de la canción para que esta pueda ser representada en nuestro frontend.
+
  ```py
 def get_itunes_album_cover_url(album_name):
     search_url = f"https://itunes.apple.com/search?term={album_name}&entity=album"
@@ -526,6 +528,16 @@ def get_itunes_album_cover_url(album_name):
     else:
         return None
  ```
+Ejemplo de obtención del url:
+`https://itunes.apple.com/search?term={Night%20at%20the%20opera}&entity=album`
+
+Respuesta de Itunes
+```json
+"artistName":"Queen", "collectionName":"A Night at the Opera (Deluxe Edition)", "collectionCensoredName":"A Night at the Opera (Deluxe Edition)", "artistViewUrl":"https://music.apple.com/us/artist/queen/3296287?uo=4", "collectionViewUrl":"https://music.apple.com/us/album/a-night-at-the-opera-deluxe-edition/1440650816?uo=4", "artworkUrl60":"https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/a7/00/d7/a700d715-a493-19a5-3de9-5753d139419f/14DMGIM05597.rgb.jpg/60x60bb.jpg",
+
+```
+Y la url de la clave dada nos lleva al poster:
+<img src="nightattheopera.png" width="100px">
 
 Así también realizamos la extracción de los audios a shazam:
 

@@ -4,6 +4,7 @@ from sklearn.neighbors import KDTree
 import pandas as pd
 import numpy as np
 import requests
+from SongRecognizer import SongRecognizer
 from KNNHighD import KNNHighD
 from KNNRTree import KNNRTree
 
@@ -59,6 +60,13 @@ def buscar_knn_RTree(consulta_id, k):
     query_features = np.array(consulta_vector, dtype=np.float32)
     results = knn_rtree.knn_query(query_features, k=k)
     return results
+
+#reconocedor de audio
+def query_features_Recognizer(audiowav):
+    reco = SongRecognizer(audiowav)
+    r = reco.recognize_song()
+    query_features = reco.extraer_fv(r, "features_vectors.csv", "spotify_songs.csv")
+    return query_features
 
 @app.route('/recommend_knn', methods=['POST'])
 def recommend_knn():
