@@ -304,7 +304,7 @@ especificar cuántos resultados quieren ver y elegir el método de indexación p
 
 ### 4. Screenshots de la GUI - P3
  -  Ejecutando una consulta "taki" y seleccionando una canción para traer los K-vecinos.
-    	<img src="p3gui.jpeg" width="800px">
+    	<img src="p3gui.jpg" width="800px">
      
 ### 5.  Video de Experimentación - P2
   [Video de experimetacion](https://drive.google.com/drive/folders/1YBS4eYEmEPJ5OJARIYKlu2CUmoAQMwqx)
