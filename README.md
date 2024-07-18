@@ -512,6 +512,18 @@ Además de gestionar el índice LSH, la librería también cumple con:
 - Realizar consultas eficientes para encontrar los vecinos más cercanos a un vector de consulta
 - Devolver las distancias y los índices de los vecinos más cercanos.
 
+### Complejidad de las Operaciones del KNN-HighD
+
+1. **Carga de Características desde el CSV:**
+   - **Complejidad:** O(n * d)
+   - **Explicación:** La carga del archivo por sí solo lleva una complejidad lineal en función del número de filas del csv. A eso se le suma la conversión de filas del DataFrame en una lista de tuplas, multiplicando n por d, la dimensión de los vectores característicos.
+2. **Construcción del Índice:**
+   - **Complejidad:** O(n * d) + O(n * num_bits)
+   - **Explicación:** Convertir la colección de características en un array de Numpy tiene una complejidad de n*d. A eso se le suma la adición de vectores al índice, ya que cada vector se debe hash a num_bits cubos
+3. **Consulta K-Vecinos:**
+   - **Complejidad:** O(d) + O(k * num_bits) + O(k)
+   - **Explicación:** La conversión de vectores en el formato especificado tiene complejidad en función de la dimensión manejada, mientras que la operación de búsqueda en el índice usando cada cubo debe ser el k de recuperación por el número de bits asociado. Por último, obtener los resultados finales y sus distancias requieren de una complejidad de k
+
 **Plus del Front**
 
 Para mostrar nuestro trabajo de la mejor manera y que la plataforma de búsqueda de canciones sea lo más realista, realizamos consultas a la API de Itunes de apple.
