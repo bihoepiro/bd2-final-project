@@ -47,7 +47,7 @@ def buscar_knn_highD(consulta_id, k):
         raise ValueError(f"Track ID {consulta_id} not found in features_vectors.csv")
     query_features = np.array(consulta_vector, dtype=np.float32)
     results = knn_highd.knn_query(query_features, k=k)
-    return results
+    return [(str(rec_id), float(distancia)) for rec_id, distancia in results]
 
 knn_rtree = KNNRTree()
 knn_rtree.load_features_from_csv('features_vectors.csv')
@@ -59,7 +59,7 @@ def buscar_knn_RTree(consulta_id, k):
         raise ValueError(f"Track ID {consulta_id} not found in features_vectors.csv")
     query_features = np.array(consulta_vector, dtype=np.float32)
     results = knn_rtree.knn_query(query_features, k=k)
-    return results
+    return [(str(rec_id), float(distancia)) for rec_id, distancia in results]
 
 #reconocedor de audio
 def query_features_Recognizer(audiowav):
@@ -111,6 +111,47 @@ def recommend_knn():
     except Exception as e:
         print("Error: ", str(e))
         return jsonify(error=str(e)), 500
+
+@app.route('/identify', methods=['POST'])
+def identify():
+    if 'file' not in request.files:
+        return jsonify(error="No file part"), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify(error="No selected file"), 400
+
+    if file:
+        try:
+            file_path = f"./temp/{file.filename}"
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)  # Ensure the directory exists
+            file.save(file_path)
+            features = query_features_Recognizer(file_path)
+            os.remove(file_path)  # Limpiar archivo temporal
+
+            # Buscar KNN usando las características extraídas
+            k = 5  # Valor predeterminado de k
+            recomendaciones = buscar_knn(features, k)
+            response = []
+            for rec_id, distancia in recomendaciones:
+                track_info = df_songs[df_songs['track_id'] == rec_id].iloc[0].to_dict()
+                lyrics = track_info.get('lyrics', 'Lyrics not available')
+                truncated_lyrics = (lyrics[:200] + '...') if lyrics != 'Lyrics not available' and len(lyrics) > 200 else lyrics
+                response.append({
+                    'track_id': rec_id,
+                    'track_name': track_info.get('track_name', 'Unknown'),
+                    'artist_name': track_info.get('track_artist', 'Unknown'),
+                    'album_name': track_info.get('track_album_name', 'Unknown'),
+                    'release_date': track_info.get('track_album_release_date', 'Unknown'),
+                    'lyrics': truncated_lyrics,
+                    'album_cover': get_itunes_album_cover_url(track_info.get('track_album_name', '')),
+                    'distance': distancia
+                })
+            return jsonify(recommendations=response)
+        except Exception as e:
+            print(f"Error: {e}")
+            return jsonify(error="Failed to process audio"), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5002)

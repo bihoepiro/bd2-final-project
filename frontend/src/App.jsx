@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, CssBaseline, Box, Grid, Typography, Paper, FormControl, InputLabel, Select, MenuItem, TextField } from '@mui/material';
+import { Container, CssBaseline, Box, Grid, Typography, Paper, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import Results from './Results';
 import Header from './Header';
@@ -18,7 +18,6 @@ const App = () => {
     const [method, setMethod] = useState('KNN-Secuencial');
     const [playingTrack, setPlayingTrack] = useState(null);
     const [currentTrack, setCurrentTrack] = useState(null);
-    const [kValue, setKValue] = useState(5);
     const [recommendationTime, setRecommendationTime] = useState(0);  // Tiempo de recomendación
 
     const handleSearch = async () => {
@@ -67,7 +66,7 @@ const App = () => {
                 },
                 body: JSON.stringify({
                     track_id: trackId,
-                    top_k: kValue,  // Usar el valor de k especificado
+                    top_k: 5,  // Usar el valor predeterminado de k
                     method: method  // Enviar el método seleccionado
                 }),
             });
@@ -112,25 +111,38 @@ const App = () => {
         }
     };
 
-    const handleIdentify = (blobUrl, blob) => {
-        // Simulated identified song data
-        const identifiedSong = {
-            track_name: 'Simulated Song',
-            artist_name: 'Simulated Artist',
-            album_name: 'Simulated Album',
-            release_date: '2021-01-01',
-            album_cover: 'https://via.placeholder.com/60',
-            track_url: blobUrl,
-        };
-        setRecommendations([identifiedSong]);
-    };
+   const handleIdentify = async (blobUrl, blob) => {
+    try {
+        const formData = new FormData();
+        formData.append('audio', blob, 'audio.wav');
+
+        const response = await fetch('http://127.0.0.1:5002/identify', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error);
+        }
+
+        const data = await response.json();
+        console.log('API Response:', data);
+
+        const trackId = data.track_id;
+        handleRecommendations(trackId);
+    } catch (error) {
+        console.error('Error identifying song:', error);
+        alert(`Error identifying song: ${error.message}`);
+    }
+};
+
 
     const handleMethodChange = (event) => {
         setMethod(event.target.value);
-    };
-
-    const handleKValueChange = (event) => {
-        setKValue(event.target.value);
+        if (currentTrack) {
+            handleRecommendations(currentTrack.track_id);  // Obtener recomendaciones cuando se cambia el método
+        }
     };
 
     return (
@@ -177,7 +189,7 @@ const App = () => {
                             <Typography variant="h5" gutterBottom style={{ color: '#1DB954' }}>
                                 Recommended Songs
                             </Typography>
-                            <FormControl variant="outlined" fullWidth style={{ marginBottom: '10px', minWidth: '120px' }}>
+                            <FormControl variant="outlined" fullWidth style={{ marginBottom: '20px', minWidth: '120px' }}>
                                 <InputLabel id="method-select-label" style={{ color: '#fff' }}>Test Method</InputLabel>
                                 <Select
                                     labelId="method-select-label"
@@ -199,22 +211,6 @@ const App = () => {
                                     <MenuItem value="KNN-RTree">KNN-RTree</MenuItem>
                                 </Select>
                             </FormControl>
-                            <FormControl variant="outlined" fullWidth style={{ marginBottom: '20px', minWidth: '120px' }}>
-                                <TextField
-                                    label="Number of Recommendations (k)"
-                                    variant="outlined"
-                                    type="number"
-                                    value={kValue}
-                                    onChange={handleKValueChange}
-                                    fullWidth
-                                    InputLabelProps={{
-                                        style: { color: '#fff' }
-                                    }}
-                                    InputProps={{
-                                        style: { color: '#fff' }
-                                    }}
-                                />
-                            </FormControl>
                             {recommendationTime > 0 && (
                                 <Box display="flex" alignItems="center" justifyContent="center" className="recommendation-time" style={{ color: '#fff', marginBottom: '20px' }}>
                                     <Typography variant="body1" gutterBottom>
@@ -227,16 +223,12 @@ const App = () => {
                                 recommendations={recommendations}
                                 setPlayingTrack={setPlayingTrack}
                                 handleIdentify={handleIdentify}
+                                handleMethodChange={handleMethodChange}
+                                method={method}
                             />
                         </Paper>
                     </Grid>
                 </Grid>
-                {playingTrack && (
-                    <audio controls autoPlay style={{ width: '100%', marginTop: '20px' }}>
-                        <source src={playingTrack} type="audio/mpeg" />
-                        Your browser does not support the audio element.
-                    </audio>
-                )}
             </Container>
         </ThemeProvider>
     );

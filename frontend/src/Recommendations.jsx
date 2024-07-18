@@ -1,11 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Box, Typography, Button, Paper } from '@mui/material';
+import { Box, Typography, Button, Paper, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import PlayCircleOutlineRoundedIcon from '@mui/icons-material/PlayCircleOutlineRounded';
 import MicIcon from '@mui/icons-material/Mic';
 import { CSSTransition } from 'react-transition-group';
 import './animations.css';
 
-const Recommendations = ({ recommendations, setPlayingTrack, handleIdentify }) => {
+const Recommendations = ({ recommendations, setPlayingTrack, handleIdentify, handleMethodChange, method }) => {
     const nodeRefs = useRef([]);
     const [isRecording, setIsRecording] = useState(false);
     const [mediaRecorder, setMediaRecorder] = useState(null);
@@ -28,12 +28,19 @@ const Recommendations = ({ recommendations, setPlayingTrack, handleIdentify }) =
             recorder.onstop = async () => {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
                 const audioUrl = URL.createObjectURL(audioBlob);
+                console.log('Audio Blob:', audioBlob);
+                console.log('Audio URL:', audioUrl);
                 handleIdentify(audioUrl, audioBlob);
                 setAudioChunks([]);
             };
 
             recorder.start();
             setIsRecording(true);
+
+            setTimeout(() => {
+                recorder.stop();
+                setIsRecording(false);
+            }, 10000); // Graba durante 10 segundos
         }
     };
 
@@ -81,6 +88,29 @@ const Recommendations = ({ recommendations, setPlayingTrack, handleIdentify }) =
             >
                 <MicIcon style={{ fontSize: 30 }} />
             </Button>
+
+            <FormControl variant="outlined" fullWidth style={{ marginBottom: '20px', minWidth: '120px' }}>
+                <InputLabel id="method-select-label" style={{ color: '#fff' }}>Test Method</InputLabel>
+                <Select
+                    labelId="method-select-label"
+                    value={method}
+                    onChange={handleMethodChange}
+                    label="Test Method"
+                    style={{ color: '#fff' }}
+                    MenuProps={{
+                        PaperProps: {
+                            style: {
+                                backgroundColor: '#282828',
+                                color: '#fff',
+                            },
+                        },
+                    }}
+                >
+                    <MenuItem value="KNN-Secuencial">KNN-Secuencial</MenuItem>
+                    <MenuItem value="KNN-HighD">KNN-HighD</MenuItem>
+                    <MenuItem value="KNN-RTree">KNN-RTree</MenuItem>
+                </Select>
+            </FormControl>
 
             {recommendations.map((rec, index) => (
                 <CSSTransition

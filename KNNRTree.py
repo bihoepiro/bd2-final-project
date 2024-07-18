@@ -1,12 +1,6 @@
 from rtree import index
-#usamos esta libreria para indexar todos los vectores caracteristicos
 import pandas as pd
 import numpy as np
-import time
-
-#data = pd.read_csv("feature_vectors.csv")
-#ids = data.iloc[:,0].to_numpy()
-#feature_vectors = data.iloc[:, 1:].astype(float).to_numpy()
 
 class KNNRTree:
     def __init__(self):
@@ -16,7 +10,7 @@ class KNNRTree:
 
     def load_features_from_csv(self, csv_path: str):
         df = pd.read_csv(csv_path)
-        ids = df.iloc[:, 0].to_numpy()
+        ids = df.iloc[:, 0].astype(str).to_numpy()  # Asegurarse de que los IDs sean cadenas
         self.collection = df.iloc[:, 1:].astype(float).to_numpy()
         self.id_to_vector = {id_: vector for id_, vector in zip(ids, self.collection)}
 
@@ -24,44 +18,26 @@ class KNNRTree:
         d = self.collection.shape[1]
         p = index.Property()
         p.dimension = d
-        self.index = index.Index(properties=p)
+        self.index = index.Index(interleaved=True, properties=p)
         for id_, vector in self.id_to_vector.items():
-            self.index.insert(id_, (*vector, *vector))
+            # Convertir id_ a entero
+            id_int = int.from_bytes(id_.encode(), 'little')
+            # Asegurarse de que las coordenadas sean números
+            vector = np.array(vector, dtype=float)
+            self.index.insert(id_int, (*vector, *vector), obj=id_)
 
     def knn_query(self, query_features: np.ndarray, k: int) -> list:
         if self.index is None:
             raise ValueError("Index has not been built.")
-
-        nearest_neighbors = list(self.index.nearest(coordinates=tuple(query_features), num_results=k))
-        results = []
-        for nn in nearest_neighbors:
-            vector = self.id_to_vector[nn]
-            distance = np.linalg.norm(np.array(vector) - query_features)
-            results.append((nn, distance))
+        query_tuple = tuple(query_features[0])
+        nearest_neighbors = list(self.index.nearest(coordinates=query_tuple, num_results=k, objects='raw'))
+        results = [(nn, np.linalg.norm(np.array(self.id_to_vector[nn]) - query_features)) for nn in nearest_neighbors]
         return results
 
-# Cargar los datos
-#data = pd.read_csv("feature_vectors.csv")
-#ids = data.iloc[:, 0].to_numpy()
-#feature_vectors = data.iloc[:, 1:].astype(float).to_numpy()
-
-# Crear el objeto KNNRTree
-#knn_rtree = KNNRTree()
-#knn_rtree.load_features_from_csv("feature_vectors.csv")
-#knn_rtree.build_index()
-
-# Realizar una consulta KNN
-#query_vector = feature_vectors[0]
-#results = knn_rtree.knn_query(query_vector, k=5)
-#print(results)
-
-#myindexrtree = KNNRTree()
-#myindexrtree.load_features_from_csv("feature_vectors.csv")
-#tiempo_inicio = time.time()
-#myindexrtree.build_index()
-#tiempo_fin = time.time()
-#tiempo_total = tiempo_fin - tiempo_inicio
-#print(f"Tiempo de ejecución: {tiempo_total} segundos")
-
-#prueba query knn
-#myindexrtree.knn_query(feature_vectors[1], 5)
+# Ejemplo de uso:
+# knn_rtree = KNNRTree()
+# knn_rtree.load_features_from_csv("features_vectors.csv")
+# knn_rtree.build_index()
+# query_vector = np.array([feature_vector_a_consultar])
+# results = knn_rtree.knn_query(query_vector, k=5)
+# print(results)
