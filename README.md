@@ -554,7 +554,7 @@ Así también realizamos la extracción de los audios a shazam.
 
 ## Visualización de la diferencia entre los índices y la búsqueda sequencial:
 
-<img src="comparaciones.jpg" width="100px">
+<img src="comparacion.jpg" width="800px">
 
 | N          | KNN Sequential | KNN Rtree   | KNN HighD  |
 |------------|----------------|-------------|------------|
