@@ -35,6 +35,6 @@ class KNNHighD:
         
         results = [(self.collection[idx][0], distances[0][i]) for i, idx in enumerate(indices[0])]
         
-        return results, query_time
+        return results
 
   
