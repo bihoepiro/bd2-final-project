@@ -481,6 +481,21 @@ Además de gestionar el índice LSH, la librería también cumple con:
 - Realizar consultas eficientes para encontrar los vecinos más cercanos a un vector de consulta
 - Devolver las distancias y los índices de los vecinos más cercanos.
 
+**Plus del Front**
+
+Para mostrar nuestro trabajo de la mejor manera y que la plataforma de búsqueda de canciones sea lo más realista, realizamos web scraping a la web de itunes donde por cada canción guardamos el url de su imágen (poster) y esta sea llamada desde la api de de nuestro backend.
+ ```
+def get_itunes_album_cover_url(album_name):
+    search_url = f"https://itunes.apple.com/search?term={album_name}&entity=album"
+    response = requests.get(search_url)
+    data = response.json()
+
+    if data['resultCount'] > 0:
+        return data['results'][0]['artworkUrl100']  #se puede ajustar el tamaño (100, 200, 400, etc)
+    else:
+        return None
+
+ ```
 ## Integrantes
 |                    **Bihonda Epiquien Rodas**                   |                          **Paola Maguiña**                          |                         **Camila Acosta**                          |                         **Sebastian Tenorio**                         |                       **Sofía Herrera**                       |
 |:---------------------------------------------------------------:|:-------------------------------------------------------------------:|:-------------------------------------------------------------------:|:------------------------------------------------------------------:|:-------------------------------------------------------------:|
