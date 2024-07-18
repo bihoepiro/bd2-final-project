@@ -123,6 +123,8 @@ A partir del preprocesamiento obtuvimos un diciconario denso que almacene para c
 
 #### KNN Secuencial
 
+En esta técnica se utiliza un KDTree de sklearn para realizar búsquedas KNN en un conjunto de características cargadas desde un archivo CSV. Este enfoque es más directo y proporciona resultados exactos, pero puede volverse ineficiente en espacios de alta dimensionalidad.
+
 #### Código de Implementación
 
 ```python
@@ -239,7 +241,7 @@ Además de gestionar el índice LSH, la librería también cumple con:
 
 ## Frontend
 
-El frontend consume dos API's, una para Índice Invertido (`api.py`) y otra para Índice Multidimensional ().
+El frontend consume dos API's, una para Índice Invertido (`api.py`) y otra para Índice Multidimensional (`knnsequential.py`).
 
 Para realizar el diseño del frontend se utilizó **React** como framework.
 ### 1. Diseño de la GUI
