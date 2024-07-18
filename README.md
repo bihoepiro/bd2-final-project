@@ -126,7 +126,7 @@ A partir del preprocesamiento obtuvimos un diciconario denso que almacene para c
 
 En esta técnica se utiliza un KDTree de sklearn para realizar búsquedas KNN en un conjunto de características cargadas desde un archivo CSV. Este enfoque es más directo y proporciona resultados exactos, pero puede volverse ineficiente en espacios de alta dimensionalidad.
 
-#### 1. Código de Implementación
+1. **Código de Implementación**
 
 ```python
 import pandas as pd
@@ -150,7 +150,7 @@ def buscar_knn(consulta_id, k):
     return resultados
 ```
 
-#### 2. Descripción de la Librería
+2. **Descripción de la Librería**
 
 2.1 `sklearn.neighbors.KDTree`
 La librería `sklearn.neighbors.KDTree` pertenece a `scikit-learn`, una biblioteca muy popular en Python para el aprendizaje automático. El `KDTree` es una estructura de datos en forma de árbol que permite realizar búsquedas rápidas de vecinos más cercanos (KNN).
