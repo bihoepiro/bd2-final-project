@@ -537,7 +537,7 @@ Respuesta de Itunes
 
 ```
 Y la url de la clave dada nos lleva al poster:
-<img src="nightattheopera.png" width="800px">
+<img src="nightattheopera.png" width="100px">
 
 Así también realizamos la extracción de los audios a shazam:
 
