@@ -51,16 +51,13 @@ class SongRecognizer:
             nombre_pista = primer_elemento['external_metadata']['spotify']['track']['name']
             nombre_artista = primer_elemento['external_metadata']['spotify']['artists'][0]['name']
 
-            print(f"Nombre de la pista: {nombre_pista}, Nombre del artista: {nombre_artista}")
 
             # Leer el archivo de características
             column_names = ['track_id'] + [f'column_{i}' for i in range(1, 82)]
             df = pd.read_csv(fea_p, header=None, names=column_names)
-            print("Archivo de características leído correctamente.")
 
             # Leer el archivo de Spotify
             df1 = pd.read_csv(spo_p)
-            print("Archivo de Spotify leído correctamente.")
 
             spoty_data_complete = pd.merge(left=df, right=df1, on='track_id', how='left')
             result_df = spoty_data_complete[(spoty_data_complete['track_name'] == nombre_pista) &
