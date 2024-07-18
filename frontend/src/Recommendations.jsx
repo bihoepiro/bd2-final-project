@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Box, Typography, Button, Paper } from '@mui/material';
 import PlayCircleOutlineRoundedIcon from '@mui/icons-material/PlayCircleOutlineRounded';
 import MicIcon from '@mui/icons-material/Mic';
@@ -10,6 +10,7 @@ const Recommendations = ({ recommendations, setPlayingTrack, handleIdentify }) =
     const [isRecording, setIsRecording] = useState(false);
     const [mediaRecorder, setMediaRecorder] = useState(null);
     const [audioChunks, setAudioChunks] = useState([]);
+    const [currentAudio, setCurrentAudio] = useState(null);
 
     const handleRecord = async () => {
         if (isRecording) {
@@ -35,6 +36,34 @@ const Recommendations = ({ recommendations, setPlayingTrack, handleIdentify }) =
             setIsRecording(true);
         }
     };
+
+    const handlePlay = (trackUrl) => {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        }
+        const newAudio = new Audio(trackUrl);
+        setCurrentAudio(newAudio);
+        newAudio.play();
+        setPlayingTrack(trackUrl);
+    };
+
+    const truncateLyrics = (lyrics, maxLength) => {
+        if (!lyrics) return '';  // Añadir manejo de casos undefined
+        if (lyrics.length > maxLength) {
+            return lyrics.substring(0, maxLength) + '...';
+        }
+        return lyrics;
+    };
+
+    useEffect(() => {
+        return () => {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+        };
+    }, [currentAudio]);
 
     return (
         <Box>
@@ -88,9 +117,12 @@ const Recommendations = ({ recommendations, setPlayingTrack, handleIdentify }) =
                             <Typography variant="body2" style={{ color: '#aaa' }}>
                                 {rec.album_name} • {rec.release_date}
                             </Typography>
+                            <Typography variant="body2" style={{ color: '#ddd', marginTop: '10px' }}>
+                                {truncateLyrics(rec.lyrics, 200)}
+                            </Typography>
                         </Box>
                         <Button
-                            onClick={() => setPlayingTrack(rec.track_url)}
+                            onClick={() => handlePlay(rec.track_url)}
                             style={{
                                 color: '#fff',
                                 backgroundColor: 'transparent',

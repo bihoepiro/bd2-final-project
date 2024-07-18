@@ -7,7 +7,7 @@ import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import { CSSTransition } from 'react-transition-group';
 import './animations.css';
 
-const Results = ({ results, onRecommend, setPlayingTrack }) => {
+const Results = ({ results, onRecommend, setPlayingTrack, indexingMethod, currentTrack, setCurrentTrack }) => {
     const [expanded, setExpanded] = useState(false);
     const [activeIndex, setActiveIndex] = useState(null);
     const nodeRefs = useRef([]);
@@ -16,8 +16,21 @@ const Results = ({ results, onRecommend, setPlayingTrack }) => {
         setExpanded(isExpanded ? panel : false);
     };
 
-    const handlePlay = (trackId, index) => {
-        const trackUrl = `http://127.0.0.1:5001/audio?track_id=${trackId}`;
+    const handlePlay = async (trackId, index) => {
+        if (!trackId) {
+            console.error("Error: trackId is undefined");
+            return;
+        }
+        const trackUrl = `http://127.0.0.1:5001/audio?track_id=${trackId}&indexingMethod=${indexingMethod}`;
+
+        if (currentTrack) {
+            currentTrack.pause();
+        }
+
+        const newAudio = new Audio(trackUrl);
+        newAudio.play();
+        setCurrentTrack(newAudio);
+
         setPlayingTrack(trackUrl);
         setActiveIndex(index);
     };

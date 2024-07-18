@@ -261,10 +261,15 @@ def procesar_consulta(query, k, bloques_cargados, cant_docs):
     resultados_finales = []
     for doc_id, score in top_k_documentos:
         doc_id_int = int(doc_id)
+        track_id = Dataf.loc[doc_id_int - 1, 'track_id']
         album_name = str(Dataf.loc[doc_id_int - 1, 'track_album_name'])
         doc_details = {
+            'track_id': track_id,
             'track_name': str(Dataf.loc[doc_id_int - 1, 'track_name']),
-            'track_album_name': album_name,
+            'track_artist': str(Dataf.loc[doc_id_int - 1, 'track_artist']),
+            'track_album_name': str(Dataf.loc[doc_id_int - 1, 'track_album_name']),  # Validar este campo
+            'album_name': album_name,
+            'release_date': str(Dataf.loc[doc_id_int - 1, 'track_album_release_date']),
             'album_cover': get_itunes_album_cover_url(album_name),
             'lyrics': str(Dataf.loc[doc_id_int - 1, 'lyrics']),
             'duration_ms': int(Dataf.loc[doc_id_int - 1, 'duration_ms']),
@@ -273,13 +278,13 @@ def procesar_consulta(query, k, bloques_cargados, cant_docs):
         resultados_finales.append(doc_details)
     return resultados_finales
 
-
 # Preprocesar las canciones y crear bloques
 fuerte_dic = prepro_cancion(Dataf)
 diccionario_ordenado = dict(sorted(fuerte_dic.items()))
 limite_bloque = 2
 bloques = crear_bloques(diccionario_ordenado, limite_bloque)
 guardar_bloques(bloques)
+
 
 
 # Cargar los bloques desde archivos JSON
