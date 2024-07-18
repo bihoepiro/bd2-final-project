@@ -120,8 +120,50 @@ def procesar_consulta(query, k):
 A partir del preprocesamiento obtuvimos un diciconario denso que almacene para cada palabra su df y a parte el tf de la palabra con cada doc en el que esté, el cual ordenamos y dividimos en bloques con indice global para garantizar que una palabra no se repita en más de un bloque y facilitar el acceso a sus datos para el cálculo de la similitud por coseno.
 ![Ejemplificación visual](bloques.png)
 
-### Índice Multidimensional
+
 #### KNN Secuencial
+
+#### Código de Implementación
+
+```python
+import pandas as pd
+from sklearn.neighbors import KDTree
+
+caracteristicas = df_caracteristicas.drop(columns=['track_id']).values
+track_ids = df_caracteristicas['track_id'].values
+
+tree = KDTree(caracteristicas)
+
+def buscar_knn(consulta_id, k):
+    # Obtener el vector de características de la canción de consulta
+    consulta_vector = df_caracteristicas[df_caracteristicas['track_id'] == consulta_id].drop(columns=['track_id']).values
+    if consulta_vector.shape[0] == 0:
+        raise ValueError(f"Track ID {consulta_id} not found in features_vectors.csv")
+    
+    distancias, indices = tree.query(consulta_vector, k=k)
+    
+    # Obtener los resultados de las K canciones más cercanas
+    resultados = [(track_ids[i], distancias[0][j]) for j, i in enumerate(indices[0])]
+    return resultados
+```
+
+### Descripción de la Librería
+
+#### `sklearn.neighbors.KDTree`
+La librería `sklearn.neighbors.KDTree` pertenece a `scikit-learn`, una biblioteca muy popular en Python para el aprendizaje automático. El `KDTree` es una estructura de datos en forma de árbol que permite realizar búsquedas rápidas de vecinos más cercanos (KNN).
+
+### Ventajas del KNN Secuencial con KDTree
+
+1. **Eficiencia de Búsqueda**:
+   - **Rápida Recuperación**: Los árboles KDTree permiten realizar consultas de KNN de manera eficiente, reduciendo el tiempo de búsqueda en comparación con una búsqueda secuencial directa en un espacio de alta dimensión.
+     
+
+### Desventajas del KNN Secuencial con KDTree
+
+   - **Limitación en Dimensiones**: Los KDTree funcionan mejor en espacios de dimensiones más bajas (generalmente menos de 20). Y los vectores de nuestro data set es de 80 dimensiones.
+   - **Actualizaciones Dinámicas**: No es eficiente para datos que cambian frecuentemente, ya que requeriría la reconstrucción del árbol.
+
+### Índice Multidimensional
 
 #### KNN-Rtree
 Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones importantes implementadas en nuestro código, entre ellas:
