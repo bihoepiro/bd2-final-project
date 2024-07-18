@@ -51,7 +51,6 @@ class SongRecognizer:
             nombre_pista = primer_elemento['external_metadata']['spotify']['track']['name']
             nombre_artista = primer_elemento['external_metadata']['spotify']['artists'][0]['name']
 
-
             # Leer el archivo de características
             column_names = ['track_id'] + [f'column_{i}' for i in range(1, 82)]
             df = pd.read_csv(fea_p, header=None, names=column_names)
@@ -67,14 +66,8 @@ class SongRecognizer:
                 raise ValueError("No se encontró coincidencia para la pista y artista especificados.")
 
             cod = result_df['track_id'].iloc[0]
-            fvp = df[df['track_id'] == cod]
 
-            if fvp.empty:
-                raise ValueError("No se encontró el ID de pista en los datos de características.")
-
-            fv = [(row.iloc[0], np.array(row.iloc[1:81], dtype=np.float32)) for _, row in fvp.iterrows()]
-            fv = fv[0][1]
-            return fv
+            return cod
 
         except Exception as e:
             print(f"Error: {e}")
