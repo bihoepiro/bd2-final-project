@@ -1,4 +1,4 @@
-# Proyecto: Full-Text Search
+# Proyecto Final
 ## Introducción
 
 ### Objetivo del proyecto
@@ -448,9 +448,6 @@ Parecido el Ts_rank, este considera adicionalmente la cantidad de términos dist
 ## Índice multidimensional
 
 ### Técnicas de indexación y librerías utilizadas
-
-Claro, a continuación te presento una versión unificada y detallada del apartado de técnicas de indexación y librerías utilizadas, incluyendo la información adicional que solicitaste:
-
 ---
 
 ### Técnicas de Indexación y Librerías Utilizadas
@@ -461,6 +458,8 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 - ```index.Property()```: Nos permite construir el índice con las propiedades de la librería.
 - ```index.insert(id_, (*vector, *vector))```: Nos permitió insertar las hojas del R-tree de la forma (identificador, tupla del vector).
 - ```index.nearest(coordinates=tuple(query_features), num_results=k)```: Nos permite obtener los "k" vecinos más cercanos (similares a una canción) a partir de una consulta.
+
+<img src="rtree80.jpg" width="700px">
 
 **Procedimiento del R-tree**
 
@@ -497,7 +496,7 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 - **Rendimiento Variable:** El rendimiento del R-tree puede degradarse si los datos no están bien distribuidos, resultando en nodos desbalanceados y menos eficientes.
 
 #### KNN-HighD:
-Partiendo de que un índice reduce su eficiencia con una alta dimensionalidad en espacios vectoriales (maldición de la dimensionalidad), existen diversas formas de mitigar este problema. Una de ellas es la reducción de la dimensionalidad, mediante formas como PCA, SVD, Random Projection, UMAP, entre otros. Para el presente proyecto sin embargo se trabajó con el índice LSH (Locality-Sensitive Hashing) para la implementación de Faiss con KNN. 
+Partiendo de que un índice reduce su eficiencia con una alta dimensionalidad en espacios vectoriales (maldición de la dimensionalidad), existen diversas formas de mitigar este problema. Una de ellas es la reducción de la dimensionalidad, mediante técnicas como PCA, SVD, Random Projection, UMAP, entre otros. Para el presente proyecto sin embargo se trabajó con el índice LSH (Locality-Sensitive Hashing) para la implementación de Faiss con KNN, el cual mitiga en otro enfoque este problema.
 
 **Indice LSH**
 \
@@ -511,6 +510,18 @@ Además de gestionar el índice LSH, la librería también cumple con:
 - Añadir vectores de alta dimensión al índice
 - Realizar consultas eficientes para encontrar los vecinos más cercanos a un vector de consulta
 - Devolver las distancias y los índices de los vecinos más cercanos.
+
+### Complejidad de las Operaciones del KNN-HighD
+
+1. **Carga de Características desde el CSV:**
+   - **Complejidad:** O(n * d)
+   - **Explicación:** La carga del archivo por sí solo lleva una complejidad lineal en función del número de filas del csv. A eso se le suma la conversión de filas del DataFrame en una lista de tuplas, multiplicando n por d, la dimensión de los vectores característicos.
+2. **Construcción del Índice:**
+   - **Complejidad:** O(n * d) + O(n * num_bits)
+   - **Explicación:** Convertir la colección de características en un array de Numpy tiene una complejidad de n*d. A eso se le suma la adición de vectores al índice, ya que cada vector se debe hash a num_bits cubos
+3. **Consulta K-Vecinos:**
+   - **Complejidad:** O(d) + O(k * num_bits) + O(k)
+   - **Explicación:** La conversión de vectores en el formato especificado tiene complejidad en función de la dimensión manejada, mientras que la operación de búsqueda en el índice usando cada cubo debe ser el k de recuperación por el número de bits asociado. Por último, obtener los resultados finales y sus distancias requieren de una complejidad de k
 
 **Plus del Front**
 
@@ -539,7 +550,21 @@ Respuesta de Itunes
 Y la url de la clave dada nos lleva al poster:
 <img src="nightattheopera.png" width="100px">
 
-Así también realizamos la extracción de los audios a shazam:
+Así también realizamos la extracción de los audios a shazam.
+
+## Visualización de la diferencia entre los índices y la búsqueda sequencial:
+
+<img src="comparacion.jpg" width="800px">
+
+| N          | KNN Sequential | KNN Rtree   | KNN HighD  |
+|------------|----------------|-------------|------------|
+| N=1000     | 2.0441         | 1.30        | 0          |
+| N=2000     | 2.9122         | 2.62284     | 0          |
+| N=4000     | 7.0893         | 6.26730918  | 1.2035     |
+| N=8000     | 8.1664         | 8.213       | 1.070737   |
+| N=10000    | 10.244         | 9.4135      | 1.189      |
+| N=12000    | 11.322         | 10.614      | 1.84607    |
+| N=14000    | 12.4           | 11.8145     | 1.4512     |
 
 ## Integrantes
 |                    **Bihonda Epiquien Rodas**                   |                          **Paola Maguiña**                          |                         **Camila Acosta**                          |                         **Sebastian Tenorio**                         |                       **Sofía Herrera**                       |
