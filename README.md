@@ -8,7 +8,7 @@ Este proyecto está enfocado en entender y aplicar los algoritmos de búsqueda y
 Se trabajó con una base de datos obtenida de Kaggle que contiene información sobre más de 18,000 canciones de Spotify, incluyendo artista, álbum, funciones de audio (por ejemplo, el volumen), letra, idioma de la letra, géneros y subgéneros.
 
 ### Importancia de aplicar indexación
-La indexación es crucial en sistemas de recuperación de información, especialmente cuando se trabaja con grandes volúmenes de datos textuales. Los índices invertidos y las técnicas de preprocesamiento permiten realizar búsquedas más rápidas y eficientes, mejorando la experiencia del usuario y optimizando el uso de recursos.
+La indexación es una técnica fundamental en los sistemas de recuperación de información, especialmente cuando se trabaja con grandes volúmenes de datos. La implementación de índices permite realizar búsquedas más rápidas y eficientes, mejorando la experiencia del usuario y optimizando el uso de recursos. Dos enfoques clave en la indexación son los índices invertidos y los índices multidimensionales, cada uno adecuado para diferentes tipos de datos y aplicaciones.
 
 ## Backend
 
