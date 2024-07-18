@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, CssBaseline, Box, Grid, Typography, Paper, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Container, CssBaseline, Box, Grid, Typography, Paper, FormControl, InputLabel, Select, MenuItem, TextField } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import Results from './Results';
 import Header from './Header';
@@ -18,6 +18,8 @@ const App = () => {
     const [method, setMethod] = useState('KNN-Secuencial');
     const [playingTrack, setPlayingTrack] = useState(null);
     const [currentTrack, setCurrentTrack] = useState(null);
+    const [kValue, setKValue] = useState(5);
+    const [recommendationTime, setRecommendationTime] = useState(0);  // Tiempo de recomendación
 
     const handleSearch = async () => {
         setLoading(true);
@@ -55,6 +57,7 @@ const App = () => {
     };
 
     const handleRecommendations = async (trackId) => {
+        const startTime = performance.now();  // Inicio del tiempo de recomendación
         try {
             console.log('Sending request for recommendations...');  // Registro
             const response = await fetch('http://127.0.0.1:5002/recommend_knn', {
@@ -64,7 +67,8 @@ const App = () => {
                 },
                 body: JSON.stringify({
                     track_id: trackId,
-                    top_k: 5,  // Número de vecinos más cercanos que queremos recuperar
+                    top_k: kValue,  // Usar el valor de k especificado
+                    method: method  // Enviar el método seleccionado
                 }),
             });
 
@@ -100,6 +104,8 @@ const App = () => {
 
             // Filtrar resultados nulos
             setRecommendations(detailedRecommendations.filter(rec => rec !== null));
+            const endTime = performance.now();  // Fin del tiempo de recomendación
+            setRecommendationTime(endTime - startTime);  // Establecer el tiempo de recomendación
         } catch (error) {
             console.error('Error fetching recommendations:', error);
             alert(`Error fetching recommendations: ${error.message}`);
@@ -121,6 +127,10 @@ const App = () => {
 
     const handleMethodChange = (event) => {
         setMethod(event.target.value);
+    };
+
+    const handleKValueChange = (event) => {
+        setKValue(event.target.value);
     };
 
     return (
@@ -167,7 +177,7 @@ const App = () => {
                             <Typography variant="h5" gutterBottom style={{ color: '#1DB954' }}>
                                 Recommended Songs
                             </Typography>
-                            <FormControl variant="outlined" fullWidth style={{ marginBottom: '20px' }}>
+                            <FormControl variant="outlined" fullWidth style={{ marginBottom: '10px', minWidth: '120px' }}>
                                 <InputLabel id="method-select-label" style={{ color: '#fff' }}>Test Method</InputLabel>
                                 <Select
                                     labelId="method-select-label"
@@ -185,10 +195,34 @@ const App = () => {
                                     }}
                                 >
                                     <MenuItem value="KNN-Secuencial">KNN-Secuencial</MenuItem>
-                                    <MenuItem value="KNN-RTree">KNN-RTree</MenuItem>
                                     <MenuItem value="KNN-HighD">KNN-HighD</MenuItem>
+                                    <MenuItem value="KNN-RTree">KNN-RTree</MenuItem>
                                 </Select>
                             </FormControl>
+                            <FormControl variant="outlined" fullWidth style={{ marginBottom: '20px', minWidth: '120px' }}>
+                                <TextField
+                                    label="Number of Recommendations (k)"
+                                    variant="outlined"
+                                    type="number"
+                                    value={kValue}
+                                    onChange={handleKValueChange}
+                                    fullWidth
+                                    InputLabelProps={{
+                                        style: { color: '#fff' }
+                                    }}
+                                    InputProps={{
+                                        style: { color: '#fff' }
+                                    }}
+                                />
+                            </FormControl>
+                            {recommendationTime > 0 && (
+                                <Box display="flex" alignItems="center" justifyContent="center" className="recommendation-time" style={{ color: '#fff', marginBottom: '20px' }}>
+                                    <Typography variant="body1" gutterBottom>
+                                        Recommendation Time: {recommendationTime.toFixed(2)} ms
+                                    </Typography>
+                                    <AccessTimeIcon style={{ fontSize: 20, color: '#1DB954', marginLeft: '8px' }} />
+                                </Box>
+                            )}
                             <Recommendations
                                 recommendations={recommendations}
                                 setPlayingTrack={setPlayingTrack}
@@ -197,6 +231,12 @@ const App = () => {
                         </Paper>
                     </Grid>
                 </Grid>
+                {playingTrack && (
+                    <audio controls autoPlay style={{ width: '100%', marginTop: '20px' }}>
+                        <source src={playingTrack} type="audio/mpeg" />
+                        Your browser does not support the audio element.
+                    </audio>
+                )}
             </Container>
         </ThemeProvider>
     );
