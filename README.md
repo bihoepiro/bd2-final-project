@@ -459,6 +459,8 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 - ```index.insert(id_, (*vector, *vector))```: Nos permitió insertar las hojas del R-tree de la forma (identificador, tupla del vector).
 - ```index.nearest(coordinates=tuple(query_features), num_results=k)```: Nos permite obtener los "k" vecinos más cercanos (similares a una canción) a partir de una consulta.
 
+<img src="rtree80.jpg" width="300px">
+
 **Procedimiento del R-tree**
 
 - **Obtención del MBR de los puntos:** 
