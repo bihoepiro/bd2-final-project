@@ -7,6 +7,8 @@ import requests
 from SongRecognizer import SongRecognizer
 from KNNHighD import KNNHighD
 from KNNRTree import KNNRTree
+from pydub import AudioSegment
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -62,11 +64,11 @@ def buscar_knn_RTree(consulta_id, k):
     return [(str(rec_id), float(distancia)) for rec_id, distancia in results]
 
 #reconocedor de audio
-def query_features_Recognizer(audiowav):
-    reco = SongRecognizer(audiowav)
-    r = reco.recognize_song()
-    query_features = reco.extraer_fv(r, "features_vectors.csv", "spotify_songs.csv")
-    return query_features
+#def query_features_Recognizer(audiowav):
+#    reco = SongRecognizer(audiowav)
+#    r = reco.recognize_song()
+#    query_features = reco.extraer_fv(r, "features_vectors.csv", "spotify_songs.csv")
+#    return query_features
 
 @app.route('/recommend_knn', methods=['POST'])
 def recommend_knn():
@@ -112,12 +114,20 @@ def recommend_knn():
         print("Error: ", str(e))
         return jsonify(error=str(e)), 500
 
+# Reconocedor de audio
+
+def query_features_Recognizer(audiowav):
+    reco = SongRecognizer(audiowav)
+    r = reco.recognize_song()
+    query_features = reco.extraer_fv(r, "features_vectors.csv", "spotify_songs.csv")
+    return query_features
+
 @app.route('/identify', methods=['POST'])
 def identify():
-    if 'file' not in request.files:
+    if 'audio' not in request.files:
         return jsonify(error="No file part"), 400
 
-    file = request.files['file']
+    file = request.files['audio']
     if file.filename == '':
         return jsonify(error="No selected file"), 400
 
@@ -126,11 +136,17 @@ def identify():
             file_path = f"./temp/{file.filename}"
             os.makedirs(os.path.dirname(file_path), exist_ok=True)  # Ensure the directory exists
             file.save(file_path)
-            features = query_features_Recognizer(file_path)
-            os.remove(file_path)  # Limpiar archivo temporal
 
-            # Buscar KNN usando las características extraídas
-            k = 5  # Valor predeterminado de k
+            # Convert WebM to WAV
+            audio = AudioSegment.from_file(file_path, format="webm")
+            wav_path = file_path.replace('.webm', '.wav')
+            audio.export(wav_path, format="wav")
+
+            features = query_features_Recognizer(wav_path)
+            os.remove(file_path)  # Clean up the temporary file
+            os.remove(wav_path)  # Clean up the temporary WAV file
+
+            k = 5  # Default k value
             recomendaciones = buscar_knn(features, k)
             response = []
             for rec_id, distancia in recomendaciones:

@@ -18,7 +18,7 @@ const Recommendations = ({ recommendations, setPlayingTrack, handleIdentify, han
             setIsRecording(false);
         } else {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const recorder = new MediaRecorder(stream);
+            const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
             setMediaRecorder(recorder);
 
             recorder.ondataavailable = (event) => {
@@ -26,7 +26,7 @@ const Recommendations = ({ recommendations, setPlayingTrack, handleIdentify, han
             };
 
             recorder.onstop = async () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 const audioUrl = URL.createObjectURL(audioBlob);
                 console.log('Audio Blob:', audioBlob);
                 console.log('Audio URL:', audioUrl);
@@ -38,8 +38,10 @@ const Recommendations = ({ recommendations, setPlayingTrack, handleIdentify, han
             setIsRecording(true);
 
             setTimeout(() => {
-                recorder.stop();
-                setIsRecording(false);
+                if (recorder.state === 'recording') {
+                    recorder.stop();
+                    setIsRecording(false);
+                }
             }, 10000); // Graba durante 10 segundos
         }
     };
