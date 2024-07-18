@@ -378,9 +378,7 @@ Se presenta una comparativa en tiempo de ejecución de cada implementación en f
 | N = 4000            |    0.510 ms    |    0.623 ms          |
 | N = 8000            |    1.020 ms    |    1.502 ms          |
 | N = 16000           |    1.850 ms    |    2.228 ms          |
-| N = 32000           |    3.100 ms    |    3.865 ms          |
-| N = 64000           |    4.200 ms    |    4.125 ms          |
-| N = 128000          |    5.350 ms    |    4.842 ms          |
+
 
 ### Interpretación de Resultados
 
