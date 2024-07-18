@@ -14,7 +14,7 @@ La indexación es una técnica fundamental en los sistemas de recuperación de i
 
 ## Índice Invertido
 
-### 1. Construcción del índice en memoria secundaria
+#### 1. **Construcción del índice en memoria secundaria**
 Para el procesamiento de bloques, creamos la clase `Bloque`, que posee como atributos `limite` (máximo de objetos), `entradas` (elementos) y `next_block` (encargado del encadenamiento de bloques).
 
 ```cpp
@@ -61,7 +61,7 @@ def crear_bloques(diccionario_ordenado, limite_bloque):
 ```
 
 
-### 2. Ejecución óptima de consultas aplicando similitud de coseno: 
+#### 2. **Ejecución óptima de consultas aplicando similitud de coseno: **
 En esta parte del código decidimos utilizar una búsqueda binaria para poder buscar de manera efectiva los términos en los bloques de memoria. Dado a que estan ordenados, accedemos a los bloques de memoria a buscar los términos y retornamos en qué bloque se encuentra. A partir de este, extraemos sus documento y su frecuencia del término
     
 ```cpp
@@ -85,7 +85,7 @@ En esta parte del código decidimos utilizar una búsqueda binaria para poder bu
 	    return None
   ```
 
- ### 3. Procesamiento de la consulta :
+#### 3. **Procesamiento de la consulta :**
  Para procesar la consulta con similitud de coseno seguimos los siguientes pasos:
  1. Obtenemos los términos de cada query
  2. Buscamos los términos en cada bloque por medio de binary search
@@ -126,7 +126,7 @@ A partir del preprocesamiento obtuvimos un diciconario denso que almacene para c
 
 En esta técnica se utiliza un KDTree de sklearn para realizar búsquedas KNN en un conjunto de características cargadas desde un archivo CSV. Este enfoque es más directo y proporciona resultados exactos, pero puede volverse ineficiente en espacios de alta dimensionalidad.
 
-#### 1. Código de Implementación
+#### 1. **Código de Implementación**
 
 ```python
 import pandas as pd
@@ -150,7 +150,7 @@ def buscar_knn(consulta_id, k):
     return resultados
 ```
 
-#### 2. Descripción de la Librería
+#### 2. **Descripción de la Librería**
 
 2.1 `sklearn.neighbors.KDTree`
 La librería `sklearn.neighbors.KDTree` pertenece a `scikit-learn`, una biblioteca muy popular en Python para el aprendizaje automático. El `KDTree` es una estructura de datos en forma de árbol que permite realizar búsquedas rápidas de vecinos más cercanos (KNN).
