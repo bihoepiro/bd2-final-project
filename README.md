@@ -473,16 +473,16 @@ Para esta técnica se usa la librería *rtree*, la cual nos brinda funciones imp
 ### Complejidad de las Operaciones del R-tree
 
 1. **Construcción del R-tree:**
-   - **Complejidad:** \(O(n \log n)\)
-   - **Explicación:** La construcción del R-tree implica organizar los datos en una estructura jerárquica de nodos, donde cada nodo puede contener múltiples entradas. En promedio, la inserción de cada elemento en el R-tree tiene una complejidad logarítmica debido a la subdivisión del espacio en regiones, y repetir esta operación para \(n\) elementos da como resultado una complejidad total de \(O(n \log n)\).
+   - **Complejidad:** O(nlog n)
+   - **Explicación:** La construcción del R-tree implica organizar los datos en una estructura jerárquica de nodos, donde cada nodo puede contener múltiples entradas. En promedio, la inserción de cada elemento en el R-tree tiene una complejidad logarítmica debido a la subdivisión del espacio en regiones, y repetir esta operación para (n) elementos da como resultado una complejidad total de O(nlog n).
 
 2. **Inserción de un elemento:**
-   - **Complejidad:** \(O(\log n)\)
+   - **Complejidad:** O(\log n)
    - **Explicación:** La inserción de un elemento en el R-tree requiere encontrar la hoja adecuada donde se debe insertar el nuevo elemento. Esto implica recorrer el árbol desde la raíz hasta una hoja, lo que típicamente toma tiempo logarítmico respecto al número de elementos ya presentes en el árbol.
 
 3. **Búsqueda de vecinos más cercanos (`knn_query`):**
-   - **Complejidad:** \(O(k \log n)\)
-   - **Explicación:** La búsqueda de los \(k\) vecinos más cercanos implica realizar una búsqueda prioritaria en el árbol, evaluando las distancias y comparándolas para encontrar las \(k\) más pequeñas. Este proceso tiene una complejidad logarítmica para cada uno de los \(k\) vecinos buscados.
+   - **Complejidad:** O(k log n)
+   - **Explicación:** La búsqueda de los (k) vecinos más cercanos implica realizar una búsqueda prioritaria en el árbol, evaluando las distancias y comparándolas para encontrar las (k) más pequeñas. Este proceso tiene una complejidad logarítmica para cada uno de los (k) vecinos buscados.
 ### Ventajas y Desventajas del R-tree
 
 #### Ventajas del R-tree
